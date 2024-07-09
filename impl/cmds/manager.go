@@ -11,7 +11,7 @@ func Load() *cmd.CommandManager {
 
 	manager.AddStruct(cmd.StructCommand{
 		Execute: func(sender ents.Sender, args []string) {
-			sender.SendMsg(
+			sender.SendMsgColor(
 				" ",
 				" &b&lGo Server &f- &71.8",
 				" ",

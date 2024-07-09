@@ -1,7 +1,7 @@
 
 <p align="center">
 
-  <img src="github/gologo.png" alt="logo" width="200" height="200">
+  <img src="github/background.png" alt="logo" width="200" height="200">
 
   <h3 align="center">Go Server</h3>
 
