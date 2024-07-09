@@ -3,9 +3,11 @@ package ents
 import (
 	"github.com/minelc/go-server/api"
 	"github.com/minelc/go-server/api/data"
+	"github.com/minelc/go-server/api/data/chat"
 	player_data "github.com/minelc/go-server/api/data/player"
 	"github.com/minelc/go-server/api/ents"
 	"github.com/minelc/go-server/api/network"
+	play "github.com/minelc/go-server/impl/network/server/play"
 )
 
 type player struct {
@@ -37,8 +39,30 @@ func NewPlayer(prof *player_data.Profile, conn network.Connection) ents.Player {
 	return player
 }
 
-func (p *player) SendMessage(message ...interface{}) {
+func (p *player) SendMsg(messages ...string) {
+	p.SendMsgPos(chat.NormalChat, messages...)
+}
 
+func (p *player) SendMsgColor(messages ...string) {
+	p.SendMsgColorPos(chat.NormalChat, messages...)
+}
+
+func (p *player) SendMsgColorPos(pos chat.MessagePosition, messages ...string) {
+	for _, msg := range messages {
+		p.conn.SendPacket(&play.PacketPlayOutChatMessage{
+			Message:         *chat.New(chat.Translate(msg)),
+			MessagePosition: pos,
+		})
+	}
+}
+
+func (p *player) SendMsgPos(pos chat.MessagePosition, messages ...string) {
+	for _, msg := range messages {
+		p.conn.SendPacket(&play.PacketPlayOutChatMessage{
+			Message:         *chat.New(msg),
+			MessagePosition: pos,
+		})
+	}
 }
 
 func (p *player) GetIsOnline() bool {

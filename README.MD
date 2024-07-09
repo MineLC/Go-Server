@@ -45,6 +45,12 @@
     <li>Execute "go mod tidy"</li>
     <li>Execute "go build"</li>
   </ol>
+  <h3>
+    <a href="https://github.com/GoLangMc/minecraft-server">Original project</a>
+  </h3>
+  <p>
+    Thanks to Sxtanna for make the base
+  </p>
   <h4>
     <a href="https://go.dev/doc/tutorial/getting-started#write-more">Learn basics of go (compile, run, install, etc)</a>
   </h4>

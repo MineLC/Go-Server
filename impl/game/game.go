@@ -28,7 +28,7 @@ func Join(p ents.Player, conn network.Connection) {
 		Difficulty: game.PEACEFUL,
 	})
 
-	debug.SendDebugPackets(conn)
+	debug.SendDebugPackets(p, conn)
 
 	conn.SendPacket(&server.PacketPlayOutAbilities{
 		Abilities: player.PlayerAbilities{

@@ -5,16 +5,16 @@ import (
 	"github.com/minelc/go-server/api/network"
 )
 
-type PacketOutChatMessage struct {
+type PacketPlayOutChatMessage struct {
 	Message         chat.Message
 	MessagePosition chat.MessagePosition
 }
 
-func (p *PacketOutChatMessage) UUID() int32 {
+func (p *PacketPlayOutChatMessage) UUID() int32 {
 	return 2
 }
 
-func (p *PacketOutChatMessage) Push(writer network.Buffer) {
+func (p *PacketPlayOutChatMessage) Push(writer network.Buffer) {
 	message := p.Message
 
 	if p.MessagePosition == chat.HotBarText {

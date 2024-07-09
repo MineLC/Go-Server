@@ -1,6 +1,9 @@
 package play
 
 import (
+	"strings"
+
+	"github.com/minelc/go-server/api"
 	"github.com/minelc/go-server/api/network"
 )
 
@@ -20,7 +23,28 @@ func (p *PacketPlayInChatMessage) Pull(reader network.Buffer) {
 }
 
 func (p *PacketPlayInChatMessage) Handle(c *network.Connection) {
-	println(p.Message)
+	uplayer := api.GetServer().GetPlayer(*c)
+	if uplayer == nil {
+		return
+	}
+	player := *uplayer
+	if p.Message[0] != '/' {
+		player.SendMsg(player.GetProfile().Name + " : " + p.Message)
+		return
+	}
+
+	split := strings.Split(p.Message, " ")
+	length := len(split)
+	if length < 1 {
+		return
+	}
+	prefix := split[0]
+	cmd := api.GetServer().GetCommandManager().Get(prefix)
+	if cmd == nil {
+		player.SendMsgColor("&cThis command don't exist")
+		return
+	}
+	cmd.Execute(player, split[1:])
 }
 
 /*

@@ -17,11 +17,16 @@ func main() {
 	if err != nil {
 		return
 	}
-
-	impl.Start()
+	stop := make(chan bool)
+	impl.Start(stop)
 	motd.SetResponse(conf.Motd)
-	for {
 
+	for {
+		if <-stop {
+			return
+		}
+		// TODO: Main thread handler. Use: Syncronize all parts of the project
+		// Works in ticks. 1 tick = 50ms
 	}
 }
 

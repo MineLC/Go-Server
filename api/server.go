@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/madflojo/tasks"
+	"github.com/minelc/go-server/api/cmd"
 	"github.com/minelc/go-server/api/ents"
 	"github.com/minelc/go-server/api/network"
 )
@@ -11,6 +12,8 @@ type Server interface {
 	Disconnect(network.Connection)
 	GetScheduler() *tasks.Scheduler
 	AddPlayer(conn *network.Connection, player *ents.Player)
+	GetCommandManager() *cmd.CommandManager
+	Stop()
 }
 
 var server Server

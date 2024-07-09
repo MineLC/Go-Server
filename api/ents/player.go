@@ -1,6 +1,7 @@
 package ents
 
 import (
+	"github.com/minelc/go-server/api/data/chat"
 	"github.com/minelc/go-server/api/data/player"
 )
 
@@ -20,6 +21,9 @@ type Player interface {
 	SetPing(ping_delay int64, server_ping int64)
 	GetKeepAlive() int64
 	SetKeepAlive(time int64)
+
+	SendMsgPos(pos chat.MessagePosition, messages ...string)
+	SendMsgColorPos(pos chat.MessagePosition, messages ...string)
 
 	Disconnect()
 }

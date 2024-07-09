@@ -1,5 +1,6 @@
 package ents
 
 type Sender interface {
-	SendMessage(message ...interface{})
+	SendMsg(message ...string)
+	SendMsgColor(message ...string)
 }
