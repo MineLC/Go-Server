@@ -31,6 +31,7 @@ func (m *Mspt) Handle(startTime int64) int64 {
 	if endTime >= m.nextTwentySeconds {
 		m.nextTwentySeconds = endTime + 20_000
 		m.min = 0
+		m.elapseTicks = 0
 		m.promedium = 0
 		m.max = 0
 		m.min = 0
