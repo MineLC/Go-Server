@@ -1,6 +1,7 @@
 package impl
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/madflojo/tasks"
@@ -104,18 +105,38 @@ func Start() {
 }
 
 func startMainLoop(s *server) {
+	var sleepTime time.Duration = 50
+	var delayedTicks int32 = 0
+
 	for {
 		if !s.running {
 			return
 		}
-		time.Sleep(50 * time.Millisecond)
+		if delayedTicks != 0 {
+			delayedTicks--
+		} else {
+			time.Sleep(sleepTime * time.Millisecond)
+		}
 
 		s.mspt.elapseTicks++
 		startTime := time.Now().UnixMilli()
 
 		executeMain(s) // Execute tasks, console, etc
 
-		s.mspt.Handle(startTime)
+		mspt := s.mspt.Handle(startTime)
+
+		// How works?: If a tick take x milliseconds, the main thread sleep less time
+		// To mantain the sleep of 50 milliseconds (a complete tick)
+		millisDelayed := 50 - mspt
+
+		// If the tick take more than 50ms is a delayed tick
+		// Example: a tick take 100ms, there are 1 ticks delayed
+		if millisDelayed < 0 {
+			delayedTicks = int32((millisDelayed - 1) / 50)
+			s.console.SendMsgColor(fmt.Sprint("A tick take more than 50ms. Delayed ticks: ", delayedTicks))
+			continue
+		}
+		sleepTime = time.Duration(millisDelayed)
 	}
 }
 

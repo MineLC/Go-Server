@@ -22,7 +22,7 @@ func (m Mspt) GetMin() int64 {
 	return m.min
 }
 
-func (m *Mspt) Handle(startTime int64) {
+func (m *Mspt) Handle(startTime int64) int64 {
 
 	endTime := time.Now().UnixMilli()
 	mspt := endTime - startTime
@@ -43,4 +43,5 @@ func (m *Mspt) Handle(startTime int64) {
 	} else if mspt > m.max {
 		m.max = mspt
 	}
+	return mspt
 }
