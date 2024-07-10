@@ -17,9 +17,11 @@ import (
 
 type server struct {
 	players   map[network.Connection]*ents.Player
+	console   *Console
 	scheduler *tasks.Scheduler
 	cmd       *cmd.CommandManager
-	stop      chan bool
+	mspt      Mspt
+	running   bool
 }
 
 func (s *server) GetPlayer(conn network.Connection) *ents.Player {
@@ -39,29 +41,84 @@ func (s *server) GetScheduler() *tasks.Scheduler {
 func (s *server) GetCommandManager() *cmd.CommandManager {
 	return s.cmd
 }
+func (s *server) GetConsole() ents.Console {
+	return s.console
+}
+func (s *server) GetMspt() api.Mspt {
+	return s.mspt
+}
+
+func (s *server) Broadcast(messages ...string) {
+	for _, msg := range messages {
+		msgPacket := &play.PacketPlayOutChatMessage{Message: *chat.New(msg)}
+		for conn := range s.players {
+			conn.SendPacket(msgPacket)
+		}
+		s.console.SendMsg(msg)
+	}
+}
 
 func (s *server) Stop() {
 	s.scheduler.Stop()
 	s.cmd = nil
+	s.console.SendMsgColor("&aStopping server...")
 
+	kickPacket := &play.PacketPlayOutKickDisconnect{Message: *chat.New(chat.Translate("&aStopping server..."))}
 	for conn := range s.players {
-		conn.SendPacket(&play.PacketPlayOutKickDisconnect{Message: *chat.New(chat.Translate("&aStopping server..."))})
+		conn.SendPacket(kickPacket)
 		conn.Stop()
-		s.stop <- true
 	}
+	s.running = false
 }
 
-func Start(stop chan bool) {
+func Start() {
+	if api.GetServer() != nil {
+		api.GetServer().Stop()
+	}
+
+	c := Console{}
 	server := server{
 		players:   make(map[network.Connection]*ents.Player, 10),
 		scheduler: tasks.New(),
 		cmd:       cmds.Load(),
-		stop:      stop,
+		console:   &c,
+		mspt: Mspt{
+			max:               0,
+			promedium:         0,
+			min:               0,
+			elapseTicks:       0,
+			nextTwentySeconds: time.Now().UnixMilli() + 20_000,
+		},
+		running: true,
 	}
+
 	api.SetServer(&server)
+	go c.start()
 
 	server.scheduler.Add(&tasks.Task{
-		Interval: time.Duration(3 * time.Second),
+		Interval: time.Duration(15 * time.Second),
 		TaskFunc: func() error { return srv_tasks.KeepAlive(&server.players) },
 	})
+
+	startMainLoop(&server)
+}
+
+func startMainLoop(s *server) {
+	for {
+		if !s.running {
+			return
+		}
+		time.Sleep(50 * time.Millisecond)
+
+		s.mspt.elapseTicks++
+		startTime := time.Now().UnixMilli()
+
+		executeMain(s) // Execute tasks, console, etc
+
+		s.mspt.Handle(startTime)
+	}
+}
+
+func executeMain(s *server) {
+	s.console.executePendient()
 }

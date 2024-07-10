@@ -29,7 +29,7 @@ func (p *PacketPlayInChatMessage) Handle(c *network.Connection) {
 	}
 	player := *uplayer
 	if p.Message[0] != '/' {
-		player.SendMsg(player.GetProfile().Name + " : " + p.Message)
+		api.GetServer().Broadcast(player.GetProfile().Name + " : " + p.Message)
 		return
 	}
 
@@ -38,13 +38,20 @@ func (p *PacketPlayInChatMessage) Handle(c *network.Connection) {
 	if length < 1 {
 		return
 	}
+
 	prefix := split[0]
 	cmd := api.GetServer().GetCommandManager().Get(prefix)
 	if cmd == nil {
 		player.SendMsgColor("&cThis command don't exist")
 		return
 	}
-	cmd.Execute(player, split[1:])
+
+	if length > 1 {
+		split = split[1:]
+	} else {
+		split = nil
+	}
+	cmd.Execute(player, split)
 }
 
 /*

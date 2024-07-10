@@ -13,6 +13,9 @@ type Server interface {
 	GetScheduler() *tasks.Scheduler
 	AddPlayer(conn *network.Connection, player *ents.Player)
 	GetCommandManager() *cmd.CommandManager
+	Broadcast(messages ...string)
+	GetConsole() ents.Console
+	GetMspt() Mspt
 	Stop()
 }
 

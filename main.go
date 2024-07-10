@@ -17,17 +17,8 @@ func main() {
 	if err != nil {
 		return
 	}
-	stop := make(chan bool)
-	impl.Start(stop)
 	motd.SetResponse(conf.Motd)
-
-	for {
-		if <-stop {
-			return
-		}
-		// TODO: Main thread handler. Use: Syncronize all parts of the project
-		// Works in ticks. 1 tick = 50ms
-	}
+	impl.Start()
 }
 
 func startConfig() conf.ServerConfig {
