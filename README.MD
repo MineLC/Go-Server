@@ -43,12 +43,11 @@
     <li>Execute "go mod tidy"</li>
     <li>Execute "go build"</li>
   </ol>
-  
+    
+  <h2 > Check the API </h2>
+  <a href="https://github.com/MineLC/Go-Server-api/"><img style=" width: 200px; height: 200px; display: block; margin-left: auto; margin-right: auto;" src="github/api.png"></a>
+
   <br>
-  
-  <h2 align="center"> Check the API </h2>
-  <a href="https://github.com/MineLC/Go-Server/"><img style=" width: 200px; height: 200px; display: block; margin-left: auto; margin-right: auto;" src="github/api.png"></a>
-  
   <h3>
     <a href="https://github.com/GoLangMc/minecraft-server">Original project</a>
   </h3>
