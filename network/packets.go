@@ -11,15 +11,26 @@ import (
 	handler_status "github.com/minelc/go-server/network/client/status"
 )
 
-var playFuncs [25]func(c *network.Connection, packet network.PacketI)
-
-func setDefaultHandlers() {
-	playFuncs[0] = handler_play.HandleKeepAlive
-	playFuncs[1] = handler_play.HandleChat
-	playFuncs[20] = handler_play.HandleTab
+type Packets struct {
+	playFuncs [25]func(c *network.Connection, packet network.PacketI)
 }
 
-func getPacketI(id int32, state network.PacketState) (network.PacketI, func(c *network.Connection, packet network.PacketI)) {
+func NewDefaultHandler() Packets {
+	p := Packets{}
+	p.playFuncs[0] = handler_play.HandleKeepAlive
+	p.playFuncs[1] = handler_play.HandleChat
+	p.playFuncs[20] = handler_play.HandleTab
+	return p
+}
+
+func (p *Packets) GetPlayFunc(id int32) func(c *network.Connection, packet network.PacketI) {
+	if id < 0 || id > 24 {
+		return nil
+	}
+	return p.playFuncs[id]
+}
+
+func (p *Packets) getPacketI(id int32, state network.PacketState) (network.PacketI, func(c *network.Connection, packet network.PacketI)) {
 	switch state {
 	case network.SHAKE:
 		if id == 0 {
@@ -50,52 +61,52 @@ func getPacketI(id int32, state network.PacketState) (network.PacketI, func(c *n
 	case network.PLAY:
 		switch id {
 		case 0:
-			return &play.PacketPlayInKeepAlive{}, playFuncs[0]
+			return &play.PacketPlayInKeepAlive{}, p.playFuncs[0]
 		case 1:
-			return &play.PacketPlayInChatMessage{}, playFuncs[1]
+			return &play.PacketPlayInChatMessage{}, p.playFuncs[1]
 		case 2:
-			return &play.PacketPlayInUseEntity{}, playFuncs[2]
+			return &play.PacketPlayInUseEntity{}, p.playFuncs[2]
 		case 3:
-			return &play.PacketPlayInFlying{}, playFuncs[3]
+			return &play.PacketPlayInFlying{}, p.playFuncs[3]
 		case 4:
-			return &play.PacketPlayInPosition{}, playFuncs[4]
+			return &play.PacketPlayInPosition{}, p.playFuncs[4]
 		case 5:
-			return &play.PacketPlayInLook{}, playFuncs[5]
+			return &play.PacketPlayInLook{}, p.playFuncs[5]
 		case 6:
-			return &play.PacketPlayInPositionLook{}, playFuncs[6]
+			return &play.PacketPlayInPositionLook{}, p.playFuncs[6]
 		case 7:
-			return &play.PacketPlayInBlockDig{}, playFuncs[7]
+			return &play.PacketPlayInBlockDig{}, p.playFuncs[7]
 		// 8 TODO: PacketPlayInBlockPlace
 		case 9:
-			return &play.PacketPlayInHeldItemSlot{}, playFuncs[9]
+			return &play.PacketPlayInHeldItemSlot{}, p.playFuncs[9]
 		case 10:
-			return &play.PacketPlayInArmAnimation{}, playFuncs[10]
+			return &play.PacketPlayInArmAnimation{}, p.playFuncs[10]
 		case 11:
-			return &play.PacketPlayInEntityAction{}, playFuncs[11]
+			return &play.PacketPlayInEntityAction{}, p.playFuncs[11]
 		// 12 TODO: PacketPlayInSteerVehicle
 		case 13:
-			return &play.PacketPlayInCloseWindow{}, playFuncs[13]
+			return &play.PacketPlayInCloseWindow{}, p.playFuncs[13]
 		case 14:
-			return &play.PacketPlayInWindowClick{}, playFuncs[14]
+			return &play.PacketPlayInWindowClick{}, p.playFuncs[14]
 		case 15:
-			return &play.PacketPlayInTransaction{}, playFuncs[15]
+			return &play.PacketPlayInTransaction{}, p.playFuncs[15]
 		case 16:
-			return &play.PacketPlayInSetCreativeSlot{}, playFuncs[16]
+			return &play.PacketPlayInSetCreativeSlot{}, p.playFuncs[16]
 		case 17:
-			return &play.PacketPlayInEnchantItem{}, playFuncs[17]
+			return &play.PacketPlayInEnchantItem{}, p.playFuncs[17]
 		// 18 TODO: PacketPlayInUpdateSign]
 		case 19:
-			return &play.PacketPlayInAbilities{}, playFuncs[19]
+			return &play.PacketPlayInAbilities{}, p.playFuncs[19]
 		case 20:
-			return &play.PacketPlayInTabComplete{}, playFuncs[20]
+			return &play.PacketPlayInTabComplete{}, p.playFuncs[20]
 		case 21:
-			return &play.PacketPlayInSettings{}, playFuncs[21]
+			return &play.PacketPlayInSettings{}, p.playFuncs[21]
 		case 22:
-			return &play.PacketPlayInClientCommand{}, playFuncs[22]
+			return &play.PacketPlayInClientCommand{}, p.playFuncs[22]
 		case 23:
-			return &play.PacketPlayInCustomPayload{}, playFuncs[23]
+			return &play.PacketPlayInCustomPayload{}, p.playFuncs[23]
 		case 24:
-			return &play.PacketPlayInSpectate{}, playFuncs[24]
+			return &play.PacketPlayInSpectate{}, p.playFuncs[24]
 		}
 		return nil, nil
 	}

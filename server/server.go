@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"fmt"
@@ -12,44 +12,50 @@ import (
 	"github.com/minelc/go-server-api/network"
 	"github.com/minelc/go-server-api/network/server/play"
 	"github.com/minelc/go-server/cmds"
+	impl_net "github.com/minelc/go-server/network"
+	"github.com/minelc/go-server/plugin"
 
 	srv_tasks "github.com/minelc/go-server/tasks"
 )
 
-type server struct {
+type Server struct {
 	players   map[network.Connection]*ents.Player
 	console   *Console
 	scheduler *tasks.Scheduler
 	cmd       *cmd.CommandManager
 	mspt      Mspt
 	running   bool
+	packets   impl_net.Packets
 }
 
-func (s *server) GetPlayer(conn network.Connection) *ents.Player {
+func (s *Server) GetPlayer(conn network.Connection) *ents.Player {
 	return s.players[conn]
 }
-func (s *server) AddPlayer(conn *network.Connection, player *ents.Player) {
+func (s *Server) AddPlayer(conn *network.Connection, player *ents.Player) {
 	s.players[*conn] = player
 }
 
-func (s *server) Disconnect(conn network.Connection) {
+func (s *Server) Disconnect(conn network.Connection) {
 	delete(s.players, conn)
 }
 
-func (s *server) GetScheduler() *tasks.Scheduler {
+func (s *Server) GetScheduler() *tasks.Scheduler {
 	return s.scheduler
 }
-func (s *server) GetCommandManager() *cmd.CommandManager {
+func (s *Server) GetCommandManager() *cmd.CommandManager {
 	return s.cmd
 }
-func (s *server) GetConsole() ents.Console {
+func (s *Server) GetConsole() ents.Console {
 	return s.console
 }
-func (s *server) GetMspt() api.Mspt {
+func (s *Server) GetMspt() api.Mspt {
 	return s.mspt
 }
+func (s *Server) GetPackets() *impl_net.Packets {
+	return &s.packets
+}
 
-func (s *server) Broadcast(messages ...string) {
+func (s *Server) Broadcast(messages ...string) {
 	for _, msg := range messages {
 		msgPacket := &play.PacketPlayOutChatMessage{Message: *chat.New(msg)}
 		for conn := range s.players {
@@ -59,7 +65,11 @@ func (s *server) Broadcast(messages ...string) {
 	}
 }
 
-func (s *server) Stop() {
+func (s *Server) Stop() {
+	complete := make(chan bool)
+	go plugin.StopPlugins(s, complete)
+	<-complete
+
 	s.scheduler.Stop()
 	s.cmd = nil
 	s.console.SendMsgColor("&aStopping server...")
@@ -72,13 +82,19 @@ func (s *server) Stop() {
 	s.running = false
 }
 
-func Start() {
+func (s *Server) LoadPlugins() {
+	s.console.SendMsgColor("Starting plugins...")
+	plugin.LoadPlugins(s)
+}
+
+func Start() *Server {
 	if api.GetServer() != nil {
 		api.GetServer().Stop()
+		return nil
 	}
 
 	c := Console{}
-	server := server{
+	server := Server{
 		players:   make(map[network.Connection]*ents.Player, 10),
 		scheduler: tasks.New(),
 		cmd:       cmds.Load(),
@@ -90,6 +106,7 @@ func Start() {
 			elapseTicks:       0,
 			nextTwentySeconds: time.Now().UnixMilli() + 20_000,
 		},
+		packets: impl_net.NewDefaultHandler(),
 		running: true,
 	}
 
@@ -101,10 +118,10 @@ func Start() {
 		TaskFunc: func() error { return srv_tasks.KeepAlive(&server.players) },
 	})
 
-	startMainLoop(&server)
+	return &server
 }
 
-func startMainLoop(s *server) {
+func StartMainLoop(s *Server) {
 	var sleepTime time.Duration = 50
 	var delayedTicks int32 = 0
 
@@ -140,6 +157,6 @@ func startMainLoop(s *server) {
 	}
 }
 
-func executeMain(s *server) {
+func executeMain(s *Server) {
 	s.console.executePendient()
 }

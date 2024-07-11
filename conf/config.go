@@ -1,9 +1,6 @@
 package conf
 
 var DefaultServerConfig = ServerConfig{
-	Settings{
-		Debug: true,
-	},
 	Network{
 		Host: "0.0.0.0",
 		Port: 25565,
@@ -17,18 +14,13 @@ var DefaultServerConfig = ServerConfig{
 }
 
 type ServerConfig struct {
-	Settings Settings
-	Network  Network
-	Motd     Motd
+	Network Network
+	Motd    Motd
 }
 
 type Network struct {
 	Host string `toml:"host"`
 	Port int    `toml:"port"`
-}
-
-type Settings struct {
-	Debug bool `toml:"debug"`
 }
 
 type Motd struct {

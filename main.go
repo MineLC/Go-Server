@@ -9,6 +9,7 @@ import (
 	"github.com/minelc/go-server-api/data/motd"
 	"github.com/minelc/go-server/conf"
 	"github.com/minelc/go-server/network"
+	server "github.com/minelc/go-server/server"
 )
 
 func main() {
@@ -27,16 +28,19 @@ func main() {
 		}),
 	}
 
-	err := network.StartNet(conf.Network.Port, conf.Network.Host)
+	srv := server.Start()
+
+	err := network.StartNet(conf.Network.Port, conf.Network.Host, srv.GetPackets())
 	if err != nil {
-		return
+		panic(err.Error())
 	}
 
-	Start()
+	srv.LoadPlugins()
+	server.StartMainLoop(srv)
 }
 
 func startConfig() conf.ServerConfig {
-	file, err := os.Open("../config.toml")
+	file, err := os.Open("config.toml")
 
 	if file == nil {
 		data, err := toml.Marshal(conf.DefaultServerConfig)

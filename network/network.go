@@ -9,7 +9,7 @@ import (
 	"github.com/minelc/go-server-api/network"
 )
 
-func StartNet(port int, host string) error {
+func StartNet(port int, host string, p *Packets) error {
 	ser, err := net.ResolveTCPAddr("tcp4", host+":"+strconv.Itoa(port))
 	if err != nil {
 		return errors.New("address resolution failed. Error: " + err.Error())
@@ -19,8 +19,6 @@ func StartNet(port int, host string) error {
 	if err != nil {
 		return errors.New("Failed to bind " + err.Error())
 	}
-
-	setDefaultHandlers()
 
 	go func() {
 		defer tcp.Close()
@@ -33,13 +31,13 @@ func StartNet(port int, host string) error {
 			}
 
 			con.SetNoDelay(true)
-			go handleConnection(newConnection(con))
+			go handleConnection(newConnection(con), p)
 		}
 	}()
 	return nil
 }
 
-func handleConnection(conn *connection) {
+func handleConnection(conn *connection, p *Packets) {
 
 	for {
 		inf := make([]byte, 1024)
@@ -61,7 +59,7 @@ func handleConnection(conn *connection) {
 		bufI := NewBufferWith(buf.UAS()[buf.InI() : buf.InI()+packetLen])
 
 		uuid := bufI.PullVrI()
-		packetI, handler := getPacketI(uuid, conn.GetState())
+		packetI, handler := p.getPacketI(uuid, conn.GetState())
 		if packetI == nil {
 			fmt.Printf("unable to decode %v packet with uuid: %d", conn.GetState(), uuid)
 			return
