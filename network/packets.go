@@ -15,12 +15,23 @@ type Packets struct {
 	playFuncs [25]func(c *network.Connection, packet network.PacketI)
 }
 
-func NewDefaultHandler() Packets {
+func NewDefaultHandler() network.PacketManager {
 	p := Packets{}
 	p.playFuncs[0] = handler_play.HandleKeepAlive
 	p.playFuncs[1] = handler_play.HandleChat
 	p.playFuncs[20] = handler_play.HandleTab
-	return p
+	return &p
+}
+
+func (p *Packets) RemoveHandler(id network.PacketInput) {
+	if id < 0 || id > 24 {
+		return
+	}
+	p.playFuncs[id] = nil
+}
+
+func (p *Packets) SetHandler(id network.PacketInput, handler func(c *network.Connection, packet network.PacketI)) {
+	p.playFuncs[id] = handler
 }
 
 func (p *Packets) GetPlayFunc(id int32) func(c *network.Connection, packet network.PacketI) {

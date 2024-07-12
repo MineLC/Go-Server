@@ -45,7 +45,7 @@ func (c *Console) start() {
 
 		input = strings.Replace(input, "\n", "", -1)
 		split := strings.Split(input, " ")
-		command := api.GetServer().GetCommandManager().Get(split[0])
+		command := (*api.GetServer().GetPluginManager().GetCommandManager()).Get(split[0])
 		if command == nil {
 			c.SendMsgColor("&cCommand inexistent | &6" + split[0])
 			continue

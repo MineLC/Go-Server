@@ -8,9 +8,10 @@ import (
 	"strings"
 
 	api "github.com/minelc/go-server-api"
+	api_plugin "github.com/minelc/go-server-api/plugin"
 )
 
-var plugins map[string]Plugin
+var plugins map[string]api_plugin.Plugin
 
 func LoadPlugins(srv api.Server) {
 	files, err := os.ReadDir("plugins")
@@ -19,7 +20,7 @@ func LoadPlugins(srv api.Server) {
 		return
 	}
 
-	plugins = make(map[string]Plugin, 1)
+	plugins = make(map[string]api_plugin.Plugin, 1)
 
 	for _, file := range files {
 		func() {
@@ -45,7 +46,7 @@ func loadPlugin(file fs.DirEntry, srv api.Server) {
 		srv.GetConsole().SendMsgColor("&cError on starting the plugin "+fileName, err.Error())
 		return
 	}
-	pl, ok := value.(Plugin)
+	pl, ok := value.(api_plugin.Plugin)
 	if !ok {
 		srv.GetConsole().SendMsgColor("&cThe file &6" + fileName + "&c is not a plugin")
 		return

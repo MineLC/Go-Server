@@ -6,26 +6,26 @@ import (
 
 	"github.com/madflojo/tasks"
 	api "github.com/minelc/go-server-api"
-	"github.com/minelc/go-server-api/cmd"
 	"github.com/minelc/go-server-api/data/chat"
 	"github.com/minelc/go-server-api/ents"
 	"github.com/minelc/go-server-api/network"
 	"github.com/minelc/go-server-api/network/server/play"
+
+	api_plugin "github.com/minelc/go-server-api/plugin"
 	"github.com/minelc/go-server/cmds"
 	impl_net "github.com/minelc/go-server/network"
-	"github.com/minelc/go-server/plugin"
-
+	plugin "github.com/minelc/go-server/plugin"
 	srv_tasks "github.com/minelc/go-server/tasks"
 )
 
 type Server struct {
-	players   map[network.Connection]*ents.Player
-	console   *Console
-	scheduler *tasks.Scheduler
-	cmd       *cmd.CommandManager
-	mspt      Mspt
-	running   bool
-	packets   impl_net.Packets
+	players       map[network.Connection]*ents.Player
+	console       *Console
+	scheduler     *tasks.Scheduler
+	pluginManager *api_plugin.PluginManager
+	mspt          Mspt
+	running       bool
+	packets       network.PacketManager
 }
 
 func (s *Server) GetPlayer(conn network.Connection) *ents.Player {
@@ -34,7 +34,6 @@ func (s *Server) GetPlayer(conn network.Connection) *ents.Player {
 func (s *Server) AddPlayer(conn *network.Connection, player *ents.Player) {
 	s.players[*conn] = player
 }
-
 func (s *Server) Disconnect(conn network.Connection) {
 	delete(s.players, conn)
 }
@@ -42,8 +41,8 @@ func (s *Server) Disconnect(conn network.Connection) {
 func (s *Server) GetScheduler() *tasks.Scheduler {
 	return s.scheduler
 }
-func (s *Server) GetCommandManager() *cmd.CommandManager {
-	return s.cmd
+func (s *Server) GetPluginManager() api_plugin.PluginManager {
+	return *s.pluginManager
 }
 func (s *Server) GetConsole() ents.Console {
 	return s.console
@@ -51,8 +50,8 @@ func (s *Server) GetConsole() ents.Console {
 func (s *Server) GetMspt() api.Mspt {
 	return s.mspt
 }
-func (s *Server) GetPackets() *impl_net.Packets {
-	return &s.packets
+func (s *Server) GetPacketManager() network.PacketManager {
+	return s.packets
 }
 
 func (s *Server) Broadcast(messages ...string) {
@@ -71,7 +70,7 @@ func (s *Server) Stop() {
 	<-complete
 
 	s.scheduler.Stop()
-	s.cmd = nil
+	s.pluginManager = nil
 	s.console.SendMsgColor("&aStopping server...")
 
 	kickPacket := &play.PacketPlayOutKickDisconnect{Message: *chat.New(chat.Translate("&aStopping server..."))}
@@ -92,12 +91,12 @@ func Start() *Server {
 		api.GetServer().Stop()
 		return nil
 	}
-
 	c := Console{}
+	pluginManager := plugin.NewPluginManager(cmds.Load())
+
 	server := Server{
 		players:   make(map[network.Connection]*ents.Player, 10),
 		scheduler: tasks.New(),
-		cmd:       cmds.Load(),
 		console:   &c,
 		mspt: Mspt{
 			max:               0,
@@ -106,8 +105,9 @@ func Start() *Server {
 			elapseTicks:       0,
 			nextTwentySeconds: time.Now().UnixMilli() + 20_000,
 		},
-		packets: impl_net.NewDefaultHandler(),
-		running: true,
+		pluginManager: &pluginManager,
+		packets:       impl_net.NewDefaultHandler(),
+		running:       true,
 	}
 
 	api.SetServer(&server)

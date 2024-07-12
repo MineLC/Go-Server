@@ -30,7 +30,7 @@ func main() {
 
 	srv := server.Start()
 
-	err := network.StartNet(conf.Network.Port, conf.Network.Host, srv.GetPackets())
+	err := network.StartNet(conf.Network.Port, conf.Network.Host, srv.GetPacketManager().(*network.Packets))
 	if err != nil {
 		panic(err.Error())
 	}

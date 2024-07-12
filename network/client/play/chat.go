@@ -28,7 +28,7 @@ func HandleChat(c *network.Connection, packet network.PacketI) {
 	}
 
 	prefix := split[0]
-	cmd := api.GetServer().GetCommandManager().Get(prefix)
+	cmd := (*api.GetServer().GetPluginManager().GetCommandManager()).Get(prefix)
 	if cmd == nil {
 		player.SendMsgColor("&cThis command don't exist")
 		return
@@ -49,7 +49,7 @@ func HandleTab(c *network.Connection, packet network.PacketI) {
 	}
 	split := strings.Split(p.Message, " ")
 	prefix := split[0]
-	cmd := api.GetServer().GetCommandManager().Get(prefix[1:])
+	cmd := (*api.GetServer().GetPluginManager().GetCommandManager()).Get(prefix[1:])
 	if cmd == nil {
 		return
 	}

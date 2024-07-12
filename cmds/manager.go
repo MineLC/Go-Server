@@ -1,50 +1,54 @@
 package cmds
 
 import (
-	"fmt"
-
-	api "github.com/minelc/go-server-api"
 	"github.com/minelc/go-server-api/cmd"
-	"github.com/minelc/go-server-api/ents"
 )
 
-func Load() *cmd.CommandManager {
-	manager := cmd.NewCommandManager()
+type CommandManager struct {
+	cmds map[string]*cmd.StructCommand
+}
 
-	manager.AddStruct(cmd.StructCommand{
-		Execute: func(sender ents.Sender, args []string) {
-			sender.SendMsgColor(
-				" ",
-				" &b&lGo Server &f- &71.8",
-				" ",
-				" &fFollow the project on github:",
-				" &bhttps://github.com/MineLC/Go-Server",
-			)
-		},
-	}, "version")
+func (c *CommandManager) ReplaceManager(newManager cmd.CommandManager) {
 
-	manager.AddStruct(cmd.StructCommand{
-		Execute: PingCMD,
-	}, "ping")
+}
 
-	manager.AddStruct(cmd.StructCommand{
-		Execute: func(sender ents.Sender, args []string) {
-			mspt := api.GetServer().GetMspt()
-			sender.SendMsgColor(
-				"  &b&l MSPT: &7(milliseconds per tick): ",
-				"  &7Last 20s: ",
-				fmt.Sprint("       &fMax: &f", mspt.GetMax()),
-				fmt.Sprint("       &fMed: &b", mspt.GetPromedium()),
-				fmt.Sprint("       &fMin: &3", mspt.GetMin()),
-			)
-		},
-	}, "mspt")
+func NewCommandManager() CommandManager {
+	return CommandManager{
+		cmds: make(map[string]*cmd.StructCommand),
+	}
+}
 
-	manager.AddStruct(cmd.StructCommand{
-		Execute: func(sender ents.Sender, args []string) {
-			api.GetServer().Stop()
-		},
-	}, "stop")
+func (c *CommandManager) Add(command cmd.Command, values ...string) {
+	for _, prefix := range values {
+		tab, ok := command.(cmd.TabCommand)
+		if ok {
+			c.cmds[prefix] = &cmd.StructCommand{
+				Execute: command.Execute,
+				Tab:     tab.Tab,
+			}
+			continue
+		}
+		c.cmds[prefix] = &cmd.StructCommand{
+			Execute: command.Execute,
+		}
+	}
+}
 
-	return &manager
+func (c *CommandManager) AddStruct(command cmd.StructCommand, values ...string) {
+	for _, prefix := range values {
+		c.cmds[prefix] = &command
+	}
+}
+
+func (c *CommandManager) Delete(values ...string) {
+	for _, prefix := range values {
+		delete(c.cmds, prefix)
+	}
+}
+
+func (c *CommandManager) Get(prefix string) *cmd.StructCommand {
+	if prefix[0] == '/' {
+		prefix = prefix[1:]
+	}
+	return c.cmds[prefix]
 }
