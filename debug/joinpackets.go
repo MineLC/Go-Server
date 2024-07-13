@@ -2,11 +2,13 @@ package debug
 
 import (
 	"github.com/minelc/go-server-api/data"
+	block "github.com/minelc/go-server-api/data/block"
 	"github.com/minelc/go-server-api/data/chat"
 	"github.com/minelc/go-server-api/data/player"
 	"github.com/minelc/go-server-api/ents"
 	"github.com/minelc/go-server-api/network"
 	"github.com/minelc/go-server-api/network/server/play"
+	"github.com/minelc/go-server/debug/chunks"
 )
 
 func SendDebugPackets(p ents.Player, conn network.Connection) {
@@ -26,6 +28,18 @@ func SendDebugPackets(p ents.Player, conn network.Connection) {
 		" &fFollow the project on github:",
 		" &bhttps://github.com/MineLC/Go-Server",
 	)
+
+	c := chunks.Chunk{
+		X: 0,
+		Y: 0,
+	}
+	c.SetAll(block.SNOW, 16, 0)
+	pa := chunks.PacketPlayOutChunkData{
+		GroundUp: false,
+		Chunk:    c,
+	}
+
+	conn.SendPacket(&pa)
 
 	p.SendMsgColorPos(chat.HotBarText, "&b&lGo Server")
 
@@ -67,7 +81,7 @@ func SendDebugPackets(p ents.Player, conn network.Connection) {
 	conn.SendPacket(&play.PacketPlayOutPosition{
 		Location: data.Location{
 			X:     0,
-			Y:     10,
+			Y:     50,
 			Z:     0,
 			AxisX: 0,
 			AxisY: 0,
