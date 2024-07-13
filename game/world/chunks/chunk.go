@@ -8,7 +8,7 @@ type ChunkSection struct {
 
 type Chunk struct {
 	X int32
-	Y int32
+	Z int32
 
 	Sections [16]*ChunkSection
 }

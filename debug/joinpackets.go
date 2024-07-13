@@ -2,13 +2,13 @@ package debug
 
 import (
 	"github.com/minelc/go-server-api/data"
-	block "github.com/minelc/go-server-api/data/block"
 	"github.com/minelc/go-server-api/data/chat"
 	"github.com/minelc/go-server-api/data/player"
 	"github.com/minelc/go-server-api/ents"
 	"github.com/minelc/go-server-api/network"
 	"github.com/minelc/go-server-api/network/server/play"
-	"github.com/minelc/go-server/debug/chunks"
+	"github.com/minelc/go-server/game/world/chunks"
+	"github.com/minelc/go-server/game/world/generator"
 )
 
 func SendDebugPackets(p ents.Player, conn network.Connection) {
@@ -29,14 +29,11 @@ func SendDebugPackets(p ents.Player, conn network.Connection) {
 		" &bhttps://github.com/MineLC/Go-Server",
 	)
 
-	c := chunks.Chunk{
-		X: 0,
-		Y: 0,
-	}
-	c.SetAll(block.SNOW, 16, 0)
+	c := generator.GenerateFlatChunk(0, 0)
+
 	pa := chunks.PacketPlayOutChunkData{
-		GroundUp: false,
-		Chunk:    c,
+		Load:  true,
+		Chunk: *c,
 	}
 
 	conn.SendPacket(&pa)
