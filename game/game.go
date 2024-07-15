@@ -7,7 +7,6 @@ import (
 	"github.com/minelc/go-server-api/network"
 	"github.com/minelc/go-server-api/network/server/play"
 	"github.com/minelc/go-server-api/world"
-
 	"github.com/minelc/go-server/debug"
 )
 

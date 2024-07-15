@@ -7,7 +7,7 @@ import (
 
 func GenerateFlatChunk(x int32, z int32) *chunks.Chunk {
 	chunk := chunks.Chunk{X: x, Z: z}
-	section := &chunks.ChunkSection{}
+	section := chunks.ChunkSection{}
 
 	blockType := block.BEDROCK
 
@@ -28,6 +28,9 @@ func GenerateFlatChunk(x int32, z int32) *chunks.Chunk {
 			blockType = block.GRASS
 		}
 	}
-	chunk.Sections[0] = section
+
+	section.BlocksPlaced = 1024
+
+	chunk.Sections[0] = &section
 	return &chunk
 }

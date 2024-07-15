@@ -4,6 +4,7 @@ go 1.22.3
 
 require (
 	github.com/BurntSushi/toml v1.4.0
+	github.com/DataDog/zstd v1.5.5
 	github.com/madflojo/tasks v1.2.0
 	github.com/minelc/go-server-api v0.0.1
 )

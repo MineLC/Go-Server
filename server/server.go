@@ -13,6 +13,8 @@ import (
 
 	api_plugin "github.com/minelc/go-server-api/plugin"
 	"github.com/minelc/go-server/cmds"
+	"github.com/minelc/go-server/debug"
+	"github.com/minelc/go-server/game/world/file"
 	impl_net "github.com/minelc/go-server/network"
 	plugin "github.com/minelc/go-server/plugin"
 	srv_tasks "github.com/minelc/go-server/tasks"
@@ -93,7 +95,7 @@ func Start() *Server {
 	}
 	c := Console{}
 	pluginManager := plugin.NewPluginManager(cmds.Load())
-
+	debug.World = file.ReadWorld()
 	server := Server{
 		players:   make(map[network.Connection]*ents.Player, 10),
 		scheduler: tasks.New(),

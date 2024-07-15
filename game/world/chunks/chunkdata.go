@@ -7,8 +7,7 @@ import (
 )
 
 type PacketPlayOutChunkData struct {
-	Load  bool
-	Chunk Chunk
+	Chunk *Chunk
 }
 
 func (p *PacketPlayOutChunkData) UUID() int32 {
@@ -19,15 +18,30 @@ func (p *PacketPlayOutChunkData) Push(writer network.Buffer) {
 	writer.PushI32(p.Chunk.X)
 	writer.PushI32(p.Chunk.Z)
 
-	writer.PushBit(p.Load)
-	chunkMap := createChunkMap(&p.Chunk)
+	writer.PushBit(true)
 
+	chunkMap := createChunkMap(p.Chunk, true, true, '\uffff')
 	writer.PushI16(int16(chunkMap.size & '\uffff'))
 	writer.PushUAS(chunkMap.bytes, true)
 }
 
-func getSize(i int) int {
-	return i<<13 + i<<12 + 256
+type PacketPlayOutUnloadChunk struct {
+	X int32
+	Z int32
+}
+
+func (p *PacketPlayOutUnloadChunk) UUID() int32 {
+	return 33
+}
+
+func (p *PacketPlayOutUnloadChunk) Push(writer network.Buffer) {
+	writer.PushI32(p.X)
+	writer.PushI32(p.Z)
+
+	writer.PushBit(true)
+
+	writer.PushI16(0)
+	writer.PushVrI(0)
 }
 
 type ChunkMap struct {
@@ -35,25 +49,34 @@ type ChunkMap struct {
 	size  uint32
 }
 
-func createChunkMap(chunk *Chunk) *ChunkMap {
+func size(i int, flag bool, flag1 bool) int {
+	j := i * 2 * 16 * 16 * 16
+	k := i * 16 * 16 * 16 / 2
+	var l, i1 int
+	if flag {
+		l = i * 16 * 16 * 16 / 2
+	}
+	if flag1 {
+		i1 = 256
+	}
+	return j + k + l + i1
+}
+
+func createChunkMap(chunk *Chunk, flag bool, skyLight bool, mask uint16) *ChunkMap {
 	chunkMap := ChunkMap{size: 0}
-	validSections := [16]*ChunkSection{}
-	sectionsAmount := 0
 
 	for i := 0; i < 16; i++ {
 		section := chunk.Sections[i]
-		if section != nil {
+		if section != nil && section.BlocksPlaced != 0 && mask&(1<<i) != 0 {
 			chunkMap.size |= 1 << i
-			validSections[sectionsAmount] = section
-			sectionsAmount++
 		}
 	}
 
-	chunkMap.bytes = make([]byte, getSize(bits.OnesCount32(chunkMap.size)))
+	chunkMap.bytes = make([]byte, size(bits.OnesCount32(chunkMap.size), skyLight, flag))
 	bPos := 0
 
 	for i := 0; i < 16; i++ {
-		section := validSections[i]
+		section := chunk.Sections[i]
 		if section == nil {
 			continue
 		}
@@ -68,7 +91,7 @@ func createChunkMap(chunk *Chunk) *ChunkMap {
 
 	// Set light for all blocks
 	for i := 0; i < 16; i++ {
-		section := validSections[i]
+		section := chunk.Sections[i]
 		if section == nil {
 			continue
 		}

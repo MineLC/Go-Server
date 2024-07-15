@@ -7,9 +7,11 @@ import (
 	"github.com/minelc/go-server-api/ents"
 	"github.com/minelc/go-server-api/network"
 	"github.com/minelc/go-server-api/network/server/play"
+	"github.com/minelc/go-server/game/world"
 	"github.com/minelc/go-server/game/world/chunks"
-	"github.com/minelc/go-server/game/world/generator"
 )
+
+var World *world.World
 
 func SendDebugPackets(p ents.Player, conn network.Connection) {
 	conn.SendPacket(&play.PacketPlayOutTabInfo{
@@ -21,6 +23,10 @@ func SendDebugPackets(p ents.Player, conn network.Connection) {
 		},
 	})
 
+	if World != nil {
+		conn.SendPacket(&chunks.PacketPlayOutBulkChunkData{Chunks: World.GetAllChunks()})
+	}
+
 	p.SendMsgColor(
 		" ",
 		" &b&lGo Server &f- &71.8",
@@ -28,15 +34,6 @@ func SendDebugPackets(p ents.Player, conn network.Connection) {
 		" &fFollow the project on github:",
 		" &bhttps://github.com/MineLC/Go-Server",
 	)
-
-	c := generator.GenerateFlatChunk(0, 0)
-
-	pa := chunks.PacketPlayOutChunkData{
-		Load:  true,
-		Chunk: *c,
-	}
-
-	conn.SendPacket(&pa)
 
 	p.SendMsgColorPos(chat.HotBarText, "&b&lGo Server")
 

@@ -10,6 +10,10 @@ import (
 	"github.com/minelc/go-server-api/network/server/play"
 )
 
+type Testa interface {
+	GetConnection() network.Connection
+}
+
 type player struct {
 	entityLiving
 
@@ -29,12 +33,11 @@ func NewPlayer(prof *player_data.Profile, conn network.Connection) ents.Player {
 		entityLiving:     NewEntityLiving(),
 		gamemode:         player_data.CREATIVE,
 		keep_alive_delay: -1,
+		conn:             conn,
 	}
 
 	player.name = prof.Name
 	player.uuid = prof.UUID
-
-	player.SetConn(conn)
 
 	return player
 }
@@ -77,10 +80,6 @@ func (p *player) GetProfile() *player_data.Profile {
 	return p.prof
 }
 
-func (p *player) SetConn(conn network.Connection) {
-	p.conn = conn
-}
-
 func (p *player) UUID() data.UUID {
 	return p.uuid
 }
@@ -91,6 +90,10 @@ func (p *player) GetGamemode() player_data.GameMode {
 
 func (p *player) SetGamemode(gamemode player_data.GameMode) {
 	p.gamemode = gamemode
+}
+
+func (p *player) GetConnection() network.Connection {
+	return p.conn
 }
 
 func (p *player) Disconnect() {

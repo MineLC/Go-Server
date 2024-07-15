@@ -82,7 +82,7 @@ func (b *buffer) PullByt() byte {
 }
 
 func (b *buffer) PullI16() int16 {
-	return int16(binary.BigEndian.Uint16(b.pullSize(4)))
+	return int16(binary.BigEndian.Uint16(b.pullSize(2)))
 }
 
 func (b *buffer) PullU16() uint16 {
