@@ -9,10 +9,11 @@ import (
 	"github.com/minelc/go-server-api/data/motd"
 	"github.com/minelc/go-server/conf"
 	"github.com/minelc/go-server/network"
-	server "github.com/minelc/go-server/server"
+	"github.com/minelc/go-server/server"
 )
 
 func main() {
+
 	conf := startConfig()
 	m := conf.Motd
 
@@ -28,7 +29,7 @@ func main() {
 		}),
 	}
 
-	srv := server.Start()
+	srv := server.Start(conf)
 
 	err := network.StartNet(conf.Network.Port, conf.Network.Host, srv.GetPacketManager().(*network.Packets))
 	if err != nil {
@@ -37,6 +38,7 @@ func main() {
 
 	srv.LoadPlugins()
 	server.StartMainLoop(srv)
+
 }
 
 func startConfig() conf.ServerConfig {

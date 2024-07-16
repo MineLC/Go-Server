@@ -16,9 +16,8 @@ import (
 	"github.com/minelc/go-server/network/crypto/auth"
 )
 
-func HandleEncryption(c *network.Connection, packet network.PacketI) {
+func HandleEncryption(conn network.Connection, packet network.PacketI) {
 	p := packet.(*login.PacketIEncryptionResponse)
-	conn := (*c)
 	defer func() {
 		if err := recover(); err != nil {
 			conn.SendPacket(&srv_login.PacketODisconnect{
@@ -80,9 +79,8 @@ func HandleEncryption(c *network.Connection, packet network.PacketI) {
 			PlayerName: p.GetProfile().Name,
 			PlayerUUID: p.UUID().String(),
 		})
-
 		conn.SetState(network.PLAY)
-		api.GetServer().AddPlayer(c, &p)
+		api.GetServer().AddPlayer(conn, p)
 		game.Join(p, conn)
 	})
 }

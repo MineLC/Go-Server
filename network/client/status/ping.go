@@ -6,7 +6,6 @@ import (
 	"github.com/minelc/go-server-api/network/server/status"
 )
 
-func HandlePing(c *network.Connection, packet network.PacketI) {
-	p := packet.(*cli_status.PacketIPing)
-	(*c).SendPacket(&status.PacketStatusOPing{Ping: p.Ping})
+func HandlePing(c network.Connection, packet network.PacketI) {
+	c.SendPacket(&status.PacketStatusOPing{Ping: packet.(*cli_status.PacketIPing).Ping})
 }

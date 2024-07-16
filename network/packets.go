@@ -12,11 +12,12 @@ import (
 )
 
 type Packets struct {
-	playFuncs [25]func(c *network.Connection, packet network.PacketI)
+	playFuncs   [25]func(c network.Connection, packet network.PacketI)
+	compression int
 }
 
-func NewDefaultHandler() network.PacketManager {
-	p := Packets{}
+func NewDefaultHandler(compressionThreshold int) network.PacketManager {
+	p := Packets{compression: compressionThreshold}
 	p.playFuncs[0] = handler_play.HandleKeepAlive
 	p.playFuncs[1] = handler_play.HandleChat
 	p.playFuncs[20] = handler_play.HandleTab
@@ -30,18 +31,22 @@ func (p *Packets) RemoveHandler(id network.PacketInput) {
 	p.playFuncs[id] = nil
 }
 
-func (p *Packets) SetHandler(id network.PacketInput, handler func(c *network.Connection, packet network.PacketI)) {
+func (p *Packets) GetCompression() int {
+	return p.compression
+}
+
+func (p *Packets) SetHandler(id network.PacketInput, handler func(c network.Connection, packet network.PacketI)) {
 	p.playFuncs[id] = handler
 }
 
-func (p *Packets) GetPlayFunc(id int32) func(c *network.Connection, packet network.PacketI) {
+func (p *Packets) GetPlayFunc(id int32) func(c network.Connection, packet network.PacketI) {
 	if id < 0 || id > 24 {
 		return nil
 	}
 	return p.playFuncs[id]
 }
 
-func (p *Packets) getPacketI(id int32, state network.PacketState) (network.PacketI, func(c *network.Connection, packet network.PacketI)) {
+func (p *Packets) getPacketI(id int32, state network.PacketState) (network.PacketI, func(c network.Connection, packet network.PacketI)) {
 	switch state {
 	case network.SHAKE:
 		if id == 0 {

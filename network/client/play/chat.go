@@ -8,14 +8,13 @@ import (
 	"github.com/minelc/go-server-api/network/client/play"
 )
 
-func HandleChat(c *network.Connection, packet network.PacketI) {
+func HandleChat(c network.Connection, packet network.PacketI) {
 	p := packet.(*play.PacketPlayInChatMessage)
 
-	uplayer := api.GetServer().GetPlayer(*c)
-	if uplayer == nil {
+	player := api.GetServer().GetPlayer(c)
+	if player == nil {
 		return
 	}
-	player := *uplayer
 	if p.Message[0] != '/' {
 		api.GetServer().Broadcast(player.GetProfile().Name + " : " + p.Message)
 		return
@@ -28,7 +27,7 @@ func HandleChat(c *network.Connection, packet network.PacketI) {
 	}
 
 	prefix := split[0]
-	cmd := (*api.GetServer().GetPluginManager().GetCommandManager()).Get(prefix)
+	cmd := api.GetServer().GetPluginManager().GetCommandManager().Get(prefix)
 	if cmd == nil {
 		player.SendMsgColor("&cThis command don't exist")
 		return
@@ -42,18 +41,18 @@ func HandleChat(c *network.Connection, packet network.PacketI) {
 	cmd.Execute(player, split)
 }
 
-func HandleTab(c *network.Connection, packet network.PacketI) {
+func HandleTab(c network.Connection, packet network.PacketI) {
 	p := packet.(*play.PacketPlayInTabComplete)
 	if p.Message[0] != '/' {
 		return
 	}
 	split := strings.Split(p.Message, " ")
 	prefix := split[0]
-	cmd := (*api.GetServer().GetPluginManager().GetCommandManager()).Get(prefix[1:])
+	cmd := api.GetServer().GetPluginManager().GetCommandManager().Get(prefix[1:])
 	if cmd == nil {
 		return
 	}
-	player := api.GetServer().GetPlayer(*c)
+	player := api.GetServer().GetPlayer(c)
 
 	if len(split) > 1 {
 		split = split[1:]
@@ -61,5 +60,5 @@ func HandleTab(c *network.Connection, packet network.PacketI) {
 		split = nil
 	}
 
-	cmd.Tab(*player, split)
+	cmd.Tab(player, split)
 }

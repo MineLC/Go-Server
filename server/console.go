@@ -30,7 +30,7 @@ func (c *Console) SendMsgColor(messages ...string) {
 
 func (c *Console) start() {
 	reader := bufio.NewReader(os.Stdin)
-
+	cmdManager := api.GetServer().GetPluginManager().GetCommandManager()
 	for {
 		input, _ := reader.ReadString('\n')
 
@@ -45,7 +45,7 @@ func (c *Console) start() {
 
 		input = strings.Replace(input, "\n", "", -1)
 		split := strings.Split(input, " ")
-		command := (*api.GetServer().GetPluginManager().GetCommandManager()).Get(split[0])
+		command := cmdManager.Get(split[0])
 		if command == nil {
 			c.SendMsgColor("&cCommand inexistent | &6" + split[0])
 			continue

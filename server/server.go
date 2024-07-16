@@ -8,33 +8,40 @@ import (
 	api "github.com/minelc/go-server-api"
 	"github.com/minelc/go-server-api/data/chat"
 	"github.com/minelc/go-server-api/ents"
+	"github.com/minelc/go-server-api/game/world"
 	"github.com/minelc/go-server-api/network"
 	"github.com/minelc/go-server-api/network/server/play"
 
 	api_plugin "github.com/minelc/go-server-api/plugin"
 	"github.com/minelc/go-server/cmds"
-	"github.com/minelc/go-server/debug"
-	"github.com/minelc/go-server/game/world/file"
+	"github.com/minelc/go-server/conf"
+
+	impl_world "github.com/minelc/go-server/game/world"
 	impl_net "github.com/minelc/go-server/network"
 	plugin "github.com/minelc/go-server/plugin"
 	srv_tasks "github.com/minelc/go-server/tasks"
 )
 
 type Server struct {
-	players       map[network.Connection]*ents.Player
+	players       map[network.Connection]ents.Player
 	console       *Console
 	scheduler     *tasks.Scheduler
-	pluginManager *api_plugin.PluginManager
+	pluginManager api_plugin.PluginManager
 	mspt          Mspt
 	running       bool
 	packets       network.PacketManager
+	worlds        world.WorldManager
 }
 
-func (s *Server) GetPlayer(conn network.Connection) *ents.Player {
+func (s *Server) GetWorldManager() world.WorldManager {
+	return s.worlds
+}
+
+func (s *Server) GetPlayer(conn network.Connection) ents.Player {
 	return s.players[conn]
 }
-func (s *Server) AddPlayer(conn *network.Connection, player *ents.Player) {
-	s.players[*conn] = player
+func (s *Server) AddPlayer(conn network.Connection, player ents.Player) {
+	s.players[conn] = player
 }
 func (s *Server) Disconnect(conn network.Connection) {
 	delete(s.players, conn)
@@ -44,7 +51,7 @@ func (s *Server) GetScheduler() *tasks.Scheduler {
 	return s.scheduler
 }
 func (s *Server) GetPluginManager() api_plugin.PluginManager {
-	return *s.pluginManager
+	return s.pluginManager
 }
 func (s *Server) GetConsole() ents.Console {
 	return s.console
@@ -84,31 +91,33 @@ func (s *Server) Stop() {
 }
 
 func (s *Server) LoadPlugins() {
-	s.console.SendMsgColor("Starting plugins...")
-	plugin.LoadPlugins(s)
+	pluginsTime := time.Now().UnixMicro()
+	amount := plugin.LoadPlugins(s)
+	if amount == 0 {
+		s.console.SendMsgColor("&3No plugins found!")
+		return
+	}
+	pluginsTime = time.Now().UnixMicro() - pluginsTime
+	s.console.SendMsgColor("&bPlugins loaded: &3", fmt.Sprint(amount), " &bin: &3", fmt.Sprint(pluginsTime), "&b µs")
 }
 
-func Start() *Server {
+func Start(conf conf.ServerConfig) *Server {
 	if api.GetServer() != nil {
 		api.GetServer().Stop()
 		return nil
 	}
 	c := Console{}
 	pluginManager := plugin.NewPluginManager(cmds.Load())
-	debug.World = file.ReadWorld()
+
 	server := Server{
-		players:   make(map[network.Connection]*ents.Player, 10),
+		players:   make(map[network.Connection]ents.Player, 10),
 		scheduler: tasks.New(),
 		console:   &c,
 		mspt: Mspt{
-			max:               0,
-			promedium:         0,
-			min:               0,
-			elapseTicks:       0,
 			nextTwentySeconds: time.Now().UnixMilli() + 20_000,
 		},
-		pluginManager: &pluginManager,
-		packets:       impl_net.NewDefaultHandler(),
+		pluginManager: pluginManager,
+		packets:       impl_net.NewDefaultHandler(conf.Network.Compression),
 		running:       true,
 	}
 
@@ -120,6 +129,9 @@ func Start() *Server {
 		TaskFunc: func() error { return srv_tasks.KeepAlive(&server.players) },
 	})
 
+	worldManager := impl_world.NewWorldManager(conf.Settings.DefaultWorld)
+	server.worlds = worldManager
+
 	return &server
 }
 
@@ -129,6 +141,7 @@ func StartMainLoop(s *Server) {
 
 	for {
 		if !s.running {
+			s.console.SendMsgColor("&cServer stopped. Thanks for use Go-Server :)")
 			return
 		}
 		if delayedTicks != 0 {

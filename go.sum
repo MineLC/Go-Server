@@ -15,6 +15,14 @@ github.com/minelc/go-server-api v0.0.0-20240710211140-aebabc99a706 h1:bQXu0G48UQ
 github.com/minelc/go-server-api v0.0.0-20240710211140-aebabc99a706/go.mod h1:NvyBoOwFtDMplG/NAFw9cf8EBUdwF0A3X/CoBm6XF9k=
 github.com/minelc/go-server-api v0.0.1 h1:RkUIKO3DzRMvJCd9vxOJmp4g363n9O5W3EjpuuIxD3Y=
 github.com/minelc/go-server-api v0.0.1/go.mod h1:NvyBoOwFtDMplG/NAFw9cf8EBUdwF0A3X/CoBm6XF9k=
+github.com/minelc/go-server-api v0.0.2 h1:Ukzbgbu85bn3BBQWFoDdQMNFAM+RhLzyu9F4O6RMhNI=
+github.com/minelc/go-server-api v0.0.2/go.mod h1:NvyBoOwFtDMplG/NAFw9cf8EBUdwF0A3X/CoBm6XF9k=
+github.com/minelc/go-server-api v0.0.3 h1:GF4KpChMxYgUllKGWVb9SFyISmtMMuYSFZMN47nycNs=
+github.com/minelc/go-server-api v0.0.3/go.mod h1:NvyBoOwFtDMplG/NAFw9cf8EBUdwF0A3X/CoBm6XF9k=
+github.com/minelc/go-server-api v0.0.4 h1:iiLJHIu8WfyffnRGHRQjXmYwKbQq5z0SrMLEag99IAQ=
+github.com/minelc/go-server-api v0.0.4/go.mod h1:NvyBoOwFtDMplG/NAFw9cf8EBUdwF0A3X/CoBm6XF9k=
+github.com/minelc/go-server-api v0.0.5 h1:SnZ08v7I/8ibbA+gljZViJ8bT5isMqGHPw9jrrWzQoo=
+github.com/minelc/go-server-api v0.0.5/go.mod h1:NvyBoOwFtDMplG/NAFw9cf8EBUdwF0A3X/CoBm6XF9k=
 github.com/rs/xid v1.5.0 h1:mKX4bl4iPYJtEIxp6CYiUuLQ/8DYMoz0PUdtGgMFRVc=
 github.com/rs/xid v1.5.0/go.mod h1:trrq9SKmegXys3aeAKXMUTdJsYXVwGY3RLcfgqegfbg=
 github.com/satori/go.uuid v1.2.0 h1:0uYX9dsZ2yD7q2RtLRtPSdGDWzjeM3TbMJP9utgA0ww=

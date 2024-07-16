@@ -12,7 +12,7 @@ type listenerData struct {
 
 type PluginManager struct {
 	plugins map[string]plugin.Plugin
-	cmd     *cmd.CommandManager
+	cmd     cmd.CommandManager
 
 	listeners map[int32]*[]listenerData
 }
@@ -20,7 +20,7 @@ type PluginManager struct {
 func NewPluginManager(cmd cmd.CommandManager) plugin.PluginManager {
 	return &PluginManager{
 		plugins:   make(map[string]plugin.Plugin, 1),
-		cmd:       &cmd,
+		cmd:       cmd,
 		listeners: make(map[int32]*[]listenerData, 1),
 	}
 }
@@ -29,7 +29,7 @@ func (p *PluginManager) GetPlugin(name string) plugin.Plugin {
 	return p.plugins[name]
 }
 
-func (p *PluginManager) GetCommandManager() *cmd.CommandManager {
+func (p *PluginManager) GetCommandManager() cmd.CommandManager {
 	return p.cmd
 }
 

@@ -13,11 +13,10 @@ import (
 
 var plugins map[string]api_plugin.Plugin
 
-func LoadPlugins(srv api.Server) {
+func LoadPlugins(srv api.Server) int {
 	files, err := os.ReadDir("plugins")
 	if err != nil {
-		srv.Broadcast(err.Error())
-		return
+		return 0
 	}
 
 	plugins = make(map[string]api_plugin.Plugin, 1)
@@ -28,6 +27,7 @@ func LoadPlugins(srv api.Server) {
 			loadPlugin(file, srv)
 		}()
 	}
+	return len(files)
 }
 
 func loadPlugin(file fs.DirEntry, srv api.Server) {

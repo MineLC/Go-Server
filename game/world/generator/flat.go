@@ -2,12 +2,13 @@ package generator
 
 import (
 	block "github.com/minelc/go-server-api/data/block"
+	api_chunk "github.com/minelc/go-server-api/game/world/chunks"
 	"github.com/minelc/go-server/game/world/chunks"
 )
 
 func GenerateFlatChunk(x int32, z int32) *chunks.Chunk {
 	chunk := chunks.Chunk{X: x, Z: z}
-	section := chunks.ChunkSection{}
+	section := api_chunk.ChunkSection{}
 
 	blockType := block.BEDROCK
 

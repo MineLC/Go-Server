@@ -7,17 +7,17 @@ import (
 	"github.com/minelc/go-server/network/crypto/auth"
 )
 
-func HandleLoginStart(conn *network.Connection, packet network.PacketI) {
+func HandleLoginStart(conn network.Connection, packet network.PacketI) {
 	p := packet.(*login.PacketILoginStart)
-	(*conn).CertifyValues(p.PlayerName)
+	conn.CertifyValues(p.PlayerName)
 
 	_, public := auth.NewCrypt()
 
 	response := srv_log.PacketOEncryptionRequest{
 		Server: "",
 		Public: public,
-		Verify: (*conn).CertifyData(),
+		Verify: conn.CertifyData(),
 	}
 
-	(*conn).SendPacket(&response)
+	conn.SendPacket(&response)
 }

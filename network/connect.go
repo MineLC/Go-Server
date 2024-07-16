@@ -13,20 +13,18 @@ import (
 )
 
 type connection struct {
-	new bool
-	tcp *net.TCPConn
-
-	state network.PacketState
-
-	certify Certify
+	compression bool
+	tcp         *net.TCPConn
+	state       network.PacketState
+	certify     Certify
 }
 
 func newConnection(conn *net.TCPConn) *connection {
 	return &connection{
-		new:     true,
-		tcp:     conn,
-		state:   network.SHAKE,
-		certify: Certify{},
+		compression: false,
+		tcp:         conn,
+		state:       network.SHAKE,
+		certify:     Certify{},
 	}
 }
 
@@ -133,8 +131,12 @@ func (c *connection) SendPacket(packet network.PacketO) {
 	bufO.PushVrI(packet.UUID())
 	packet.Push(bufO)
 
-	temp.PushVrI(bufO.Len())
-	temp.PushUAS(bufO.UAS(), false)
+	packetLength := bufO.Len()
 
+	if packet.UUID() == 0x03 && c.state == network.LOGIN {
+		c.compression = true
+	}
+	temp.PushVrI(packetLength)
+	temp.PushUAS(bufO.UAS(), false)
 	c.tcp.Write(c.Encrypt(temp.UAS()))
 }

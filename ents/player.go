@@ -72,6 +72,10 @@ func (p *player) GetIsOnline() bool {
 	return p.online
 }
 
+func (p *player) GetConnection() network.Connection {
+	return p.conn
+}
+
 func (p *player) SetIsOnline(state bool) {
 	p.online = state
 }
@@ -90,10 +94,6 @@ func (p *player) GetGamemode() player_data.GameMode {
 
 func (p *player) SetGamemode(gamemode player_data.GameMode) {
 	p.gamemode = gamemode
-}
-
-func (p *player) GetConnection() network.Connection {
-	return p.conn
 }
 
 func (p *player) Disconnect() {

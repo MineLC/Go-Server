@@ -1,28 +1,34 @@
 package chunks
 
-import block "github.com/minelc/go-server-api/data/block"
-
-type ChunkSection struct {
-	Blocks       [4096]uint16
-	BlocksPlaced int16
-}
-
-func (c *ChunkSection) GetBlocksPlaced() int16 {
-	return c.BlocksPlaced
-}
+import (
+	block "github.com/minelc/go-server-api/data/block"
+	api_chunk "github.com/minelc/go-server-api/game/world/chunks"
+)
 
 type Chunk struct {
 	X int32
 	Z int32
 
-	Sections [16]*ChunkSection
+	Sections [16]*api_chunk.ChunkSection
+}
+
+func (c *Chunk) GetX() int32 {
+	return c.X
+}
+
+func (c *Chunk) GetZ() int32 {
+	return c.Z
+}
+
+func (c *Chunk) GetSections() [16]*api_chunk.ChunkSection {
+	return c.Sections
 }
 
 func (c *Chunk) SetBlock(x int32, y int32, z int32, blockType block.Block, data uint16) {
 	section := y >> 4
 	cS := c.Sections[section]
 	if cS == nil {
-		cS = &ChunkSection{}
+		cS = &api_chunk.ChunkSection{}
 		c.Sections[section] = cS
 	}
 
@@ -42,12 +48,12 @@ func (c *Chunk) SetBlock(x int32, y int32, z int32, blockType block.Block, data 
 	cS.Blocks[key] = uint16(blockType)<<4 | data
 }
 
-func (c *Chunk) SetAll(blockType block.Block, section int, data uint16) {
+func (c *Chunk) SetAll(blockType block.Block, start int, end uint16, data uint16) {
 	block := uint16(blockType)<<4 | data
-	for i := 0; i < section; i++ {
+	for i := start; i < int(end); i++ {
 		section := c.Sections[i]
 		if section == nil {
-			section = &ChunkSection{}
+			section = &api_chunk.ChunkSection{}
 			c.Sections[i] = section
 		}
 		if block != 0 {

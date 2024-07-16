@@ -6,7 +6,7 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/minelc/go-server-api/network"
+	api "github.com/minelc/go-server-api"
 )
 
 func StartNet(port int, host string, p *Packets) error {
@@ -26,10 +26,9 @@ func StartNet(port int, host string, p *Packets) error {
 			con, err := tcp.AcceptTCP()
 
 			if err != nil {
-				println(err.Error())
+				api.GetServer().GetConsole().SendMsg(err.Error())
 				break
 			}
-
 			con.SetNoDelay(true)
 			go handleConnection(newConnection(con), p)
 		}
@@ -38,7 +37,6 @@ func StartNet(port int, host string, p *Packets) error {
 }
 
 func handleConnection(conn *connection, p *Packets) {
-
 	for {
 		inf := make([]byte, 1024)
 		sze, err := conn.Pull(inf)
@@ -53,7 +51,6 @@ func handleConnection(conn *connection, p *Packets) {
 		if buf.UAS()[0] == 0xFE { // LEGACY PING
 			continue
 		}
-
 		packetLen := buf.PullVrI()
 
 		bufI := NewBufferWith(buf.UAS()[buf.InI() : buf.InI()+packetLen])
@@ -67,8 +64,7 @@ func handleConnection(conn *connection, p *Packets) {
 
 		if handler != nil {
 			packetI.Pull(bufI)
-			var api_conn network.Connection = conn
-			handler(&api_conn, packetI)
+			handler(conn, packetI)
 		}
 	}
 }

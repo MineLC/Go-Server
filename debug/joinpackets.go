@@ -1,17 +1,14 @@
 package debug
 
 import (
+	api "github.com/minelc/go-server-api"
 	"github.com/minelc/go-server-api/data"
 	"github.com/minelc/go-server-api/data/chat"
 	"github.com/minelc/go-server-api/data/player"
 	"github.com/minelc/go-server-api/ents"
 	"github.com/minelc/go-server-api/network"
 	"github.com/minelc/go-server-api/network/server/play"
-	"github.com/minelc/go-server/game/world"
-	"github.com/minelc/go-server/game/world/chunks"
 )
-
-var World *world.World
 
 func SendDebugPackets(p ents.Player, conn network.Connection) {
 	conn.SendPacket(&play.PacketPlayOutTabInfo{
@@ -22,11 +19,10 @@ func SendDebugPackets(p ents.Player, conn network.Connection) {
 			Text: "§f1.8",
 		},
 	})
-
-	if World != nil {
-		conn.SendPacket(&chunks.PacketPlayOutBulkChunkData{Chunks: World.GetAllChunks()})
+	world := api.GetServer().GetWorldManager().GetDefaultWorld()
+	if world != nil {
+		conn.SendPacket(&play.PacketPlayOutBulkChunkData{Chunks: world.GetAllChunks()})
 	}
-
 	p.SendMsgColor(
 		" ",
 		" &b&lGo Server &f- &71.8",
@@ -73,10 +69,12 @@ func SendDebugPackets(p ents.Player, conn network.Connection) {
 		Slot: player.SLOT_0,
 	})
 	conn.SendPacket(&play.PacketPlayOutPosition{
-		Location: data.Location{
-			X:     0,
-			Y:     50,
-			Z:     0,
+		Position: data.PositionF{
+			X: 0,
+			Y: 50,
+			Z: 0,
+		},
+		Head: data.HeadPosition{
 			AxisX: 0,
 			AxisY: 0,
 		},

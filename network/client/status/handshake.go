@@ -9,9 +9,8 @@ import (
 	"github.com/minelc/go-server-api/network/server/status"
 )
 
-func HandleHandShake(c *network.Connection, packet network.PacketI) {
+func HandleHandShake(conn network.Connection, packet network.PacketI) {
 	p := packet.(*cli_status.PacketHandshakingInSetProtocol)
-	conn := (*c)
 
 	if p.State == network.STATUS {
 		conn.SetState(network.STATUS)
