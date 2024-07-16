@@ -14,19 +14,19 @@
     <a href="https://github.com/MineLC/Go-Server/pulls">Send a Pull Request</a>
   </p>
   
-  <h2>To do:</h2>
+  <h2>Features:</h2>
   <ul>
     <li>
       <h3>
-        <a href="https://www.spigotmc.org/resources/slimeworldmanager.69974/">World System</a>
+        <a href="https://github.com/ichocomilk/MinimalWorld">World System</a>
       </h3>
-      <p>World based on .slime (SlimeWorldManager Format)</p>
+      <p>World based on .minworld (Minimal world format)</p>
     </li>
     <li>
       <h3>
-        <a href="https://wiki.vg/Protocol">Many packets features</a>
+        <a href="https://wiki.vg/Protocol">Others</a>
       </h3>
-      <p>Entities, skins, etc</p>
+      <p>Chat, commands, online mode, etc</p>
     </li>
   </ul>
 
