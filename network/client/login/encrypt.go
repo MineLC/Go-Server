@@ -11,6 +11,8 @@ import (
 	"github.com/minelc/go-server-api/network"
 	"github.com/minelc/go-server-api/network/client/login"
 	srv_login "github.com/minelc/go-server-api/network/server/login"
+	"github.com/minelc/go-server-api/plugin"
+	"github.com/minelc/go-server-api/plugin/events"
 	"github.com/minelc/go-server/ents"
 	"github.com/minelc/go-server/game"
 	"github.com/minelc/go-server/network/crypto/auth"
@@ -79,6 +81,9 @@ func HandleEncryption(conn network.Connection, packet network.PacketI) {
 			PlayerName: p.GetProfile().Name,
 			PlayerUUID: p.UUID().String(),
 		})
+
+		api.GetServer().GetPluginManager().CallEvent(events.PlayerJoinEvent{Player: p}, plugin.Join)
+
 		conn.SetState(network.PLAY)
 		api.GetServer().AddPlayer(conn, p)
 		game.Join(p, conn)

@@ -14,14 +14,14 @@ type PluginManager struct {
 	plugins map[string]plugin.Plugin
 	cmd     cmd.CommandManager
 
-	listeners map[int32]*[]listenerData
+	listeners map[int32][]*listenerData
 }
 
 func NewPluginManager(cmd cmd.CommandManager) plugin.PluginManager {
 	return &PluginManager{
 		plugins:   make(map[string]plugin.Plugin, 1),
 		cmd:       cmd,
-		listeners: make(map[int32]*[]listenerData, 1),
+		listeners: make(map[int32][]*listenerData, 1),
 	}
 }
 
@@ -34,12 +34,10 @@ func (p *PluginManager) GetCommandManager() cmd.CommandManager {
 }
 
 func (p *PluginManager) CallEvent(event interface{}, eventType int32) {
-	data := p.listeners[eventType]
-	if data == nil {
+	listeners := p.listeners[eventType]
+	if listeners == nil {
 		return
 	}
-	listeners := *data
-
 	for _, listener := range listeners {
 		listener.handle(event)
 	}
@@ -53,25 +51,24 @@ func (p *PluginManager) AddListener(listener func(interface{}), eventType int32,
 	}
 
 	if eventListeners == nil {
-		listeners := make([]listenerData, 1)
-		listeners[0] = data
-		p.listeners[eventType] = &listeners
+		listeners := make([]*listenerData, 1)
+		listeners[0] = &data
+		p.listeners[eventType] = listeners
 		return
 	}
-	newListeners := append(*eventListeners, data)
-	p.listeners[eventType] = &newListeners
+	newListeners := append(eventListeners, &data)
+	p.listeners[eventType] = newListeners
 }
 
 func (p *PluginManager) RemoveListener(eventType int32, plugin plugin.Plugin) {
-	data := p.listeners[eventType]
-	if data == nil {
+	listeners := p.listeners[eventType]
+	if listeners == nil {
 		return
 	}
-	listeners := *data
 	length := len(listeners)
 
 	newSize := 0
-	newArray := make([]listenerData, length)
+	newArray := make([]*listenerData, length)
 	position := 0
 
 	for i := 0; i < length; i++ {
@@ -85,5 +82,5 @@ func (p *PluginManager) RemoveListener(eventType int32, plugin plugin.Plugin) {
 	}
 
 	resized := newArray[:newSize]
-	p.listeners[eventType] = &resized
+	p.listeners[eventType] = resized
 }

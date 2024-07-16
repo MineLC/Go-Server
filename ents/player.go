@@ -8,6 +8,8 @@ import (
 	"github.com/minelc/go-server-api/ents"
 	"github.com/minelc/go-server-api/network"
 	"github.com/minelc/go-server-api/network/server/play"
+	"github.com/minelc/go-server-api/plugin"
+	"github.com/minelc/go-server-api/plugin/events"
 )
 
 type Testa interface {
@@ -98,6 +100,8 @@ func (p *player) SetGamemode(gamemode player_data.GameMode) {
 
 func (p *player) Disconnect() {
 	api.GetServer().Disconnect(p.conn)
+
+	api.GetServer().GetPluginManager().CallEvent(events.PlayerQuitEvent{Player: p}, plugin.Quit)
 
 	p.conn.Stop()
 }

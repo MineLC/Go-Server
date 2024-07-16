@@ -6,6 +6,8 @@ import (
 	api "github.com/minelc/go-server-api"
 	"github.com/minelc/go-server-api/network"
 	"github.com/minelc/go-server-api/network/client/play"
+	"github.com/minelc/go-server-api/plugin"
+	"github.com/minelc/go-server-api/plugin/events"
 )
 
 func HandleChat(c network.Connection, packet network.PacketI) {
@@ -16,7 +18,11 @@ func HandleChat(c network.Connection, packet network.PacketI) {
 		return
 	}
 	if p.Message[0] != '/' {
-		api.GetServer().Broadcast(player.GetProfile().Name + " : " + p.Message)
+		event := events.PlayerChat{Cancel: false, Player: player, Message: p.Message}
+		api.GetServer().GetPluginManager().CallEvent(event, plugin.Chat)
+		if !event.Cancel {
+			api.GetServer().Broadcast(player.GetProfile().Name + " : " + p.Message)
+		}
 		return
 	}
 
