@@ -1,10 +1,14 @@
 package ents
 
-import "github.com/minelc/go-server-api/data"
+import (
+	"github.com/minelc/go-server-api/data"
+	"github.com/minelc/go-server-api/network"
+)
 
 var entityCounter = int64(0)
 
 type entity struct {
+	Bitmask  byte
 	name     string
 	entityID int64
 	position data.PositionF
@@ -23,4 +27,9 @@ func (e *entity) EntityUUID() int64 {
 
 func (e *entity) GetPosition() *data.PositionF {
 	return &e.position
+}
+
+func (e *entity) PushMetadata(buffer network.Buffer) {
+	buffer.PushByt(BitMask)
+	buffer.PushByt(255)
 }

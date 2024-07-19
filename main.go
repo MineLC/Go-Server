@@ -8,6 +8,7 @@ import (
 	"github.com/minelc/go-server-api/data"
 	"github.com/minelc/go-server-api/data/motd"
 	"github.com/minelc/go-server/conf"
+	"github.com/minelc/go-server/game/join"
 	"github.com/minelc/go-server/network"
 	"github.com/minelc/go-server/server"
 )
@@ -29,6 +30,7 @@ func main() {
 		}),
 	}
 
+	join.GameOptions = conf.Game
 	srv := server.Start(conf)
 
 	err := network.StartNet(conf.Network.Port, conf.Network.Host, srv.GetPacketManager().(*network.Packets))
@@ -38,14 +40,13 @@ func main() {
 
 	srv.LoadPlugins()
 	server.StartMainLoop(srv)
-
 }
 
 func startConfig() conf.ServerConfig {
 	file, err := os.Open("config.toml")
 
 	if file == nil {
-		data, err := toml.Marshal(conf.DefaultServerConfig)
+		data, err := toml.Marshal(conf.CreateDefaultConf())
 
 		if err != nil {
 			panic(err.Error())
@@ -53,7 +54,7 @@ func startConfig() conf.ServerConfig {
 		if err := os.WriteFile("config.toml", data, 0644); err != nil {
 			panic(err.Error())
 		}
-		return conf.DefaultServerConfig
+		return conf.CreateDefaultConf()
 	}
 
 	if err != nil {

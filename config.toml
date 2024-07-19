@@ -9,5 +9,8 @@
   max = 100
   online = 0
 
-[Settings]
+[Game]
   default-world = "world"
+  send-players = true
+  online-mode = true
+  debug-packets = true

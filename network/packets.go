@@ -18,9 +18,13 @@ type Packets struct {
 
 func NewDefaultHandler(compressionThreshold int) network.PacketManager {
 	p := Packets{compression: compressionThreshold}
-	p.playFuncs[0] = handler_play.HandleKeepAlive
-	p.playFuncs[1] = handler_play.HandleChat
-	p.playFuncs[20] = handler_play.HandleTab
+	p.playFuncs[network.KeepAlive] = handler_play.HandleKeepAlive
+	p.playFuncs[network.ChatMessage] = handler_play.HandleChat
+	p.playFuncs[network.TabComplete] = handler_play.HandleTab
+	p.playFuncs[network.Position] = handler_play.HandleMove
+	p.playFuncs[network.Look] = handler_play.HandleLook
+	p.playFuncs[network.PositionLook] = handler_play.HandleMoveLook
+	p.playFuncs[network.Settings] = handler_play.HandleSettings
 	return &p
 }
 

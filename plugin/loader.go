@@ -23,7 +23,6 @@ func LoadPlugins(srv api.Server) int {
 
 	for _, file := range files {
 		func() {
-			srv.Broadcast(file.Name())
 			loadPlugin(file, srv)
 		}()
 	}
@@ -52,8 +51,6 @@ func loadPlugin(file fs.DirEntry, srv api.Server) {
 		return
 	}
 	name := pl.Name()
-	srv.GetConsole().SendMsgColor("&aStarting plugin... &6" + name)
-
 	defer func() {
 		if r := recover(); r != nil {
 			srv.GetConsole().SendMsgColor(fmt.Sprint("&cError executing the plugin. Error:", r))
@@ -63,6 +60,8 @@ func loadPlugin(file fs.DirEntry, srv api.Server) {
 
 	pl.Enable()
 	plugins[name] = pl
+	srv.GetConsole().SendMsgColor("&aPlugin &6" + name + " started!")
+
 }
 
 func StopPlugins(srv api.Server, complete chan bool) {

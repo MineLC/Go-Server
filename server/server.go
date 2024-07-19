@@ -46,6 +46,9 @@ func (s *Server) AddPlayer(conn network.Connection, player ents.Player) {
 func (s *Server) Disconnect(conn network.Connection) {
 	delete(s.players, conn)
 }
+func (s *Server) GetPlayers() *map[network.Connection]ents.Player {
+	return &s.players
+}
 
 func (s *Server) GetScheduler() *tasks.Scheduler {
 	return s.scheduler
@@ -98,7 +101,7 @@ func (s *Server) LoadPlugins() {
 		return
 	}
 	pluginsTime = time.Now().UnixMicro() - pluginsTime
-	s.console.SendMsgColor("&bPlugins loaded: &3", fmt.Sprint(amount), " &bin: &3", fmt.Sprint(pluginsTime), "&b µs")
+	s.console.SendMsgColor("&aPlugins loaded: &e" + fmt.Sprint(amount) + " &ain: &e" + fmt.Sprint(pluginsTime) + "&a µs")
 }
 
 func Start(conf conf.ServerConfig) *Server {
@@ -106,6 +109,7 @@ func Start(conf conf.ServerConfig) *Server {
 		api.GetServer().Stop()
 		return nil
 	}
+
 	c := Console{}
 	pluginManager := plugin.NewPluginManager(cmds.Load())
 
@@ -129,9 +133,8 @@ func Start(conf conf.ServerConfig) *Server {
 		TaskFunc: func() error { return srv_tasks.KeepAlive(&server.players) },
 	})
 
-	worldManager := impl_world.NewWorldManager(conf.Settings.DefaultWorld)
+	worldManager := impl_world.NewWorldManager(conf.Game.DefaultWorld)
 	server.worlds = worldManager
-
 	return &server
 }
 

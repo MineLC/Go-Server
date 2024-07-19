@@ -12,19 +12,20 @@ import (
 	"github.com/minelc/go-server-api/plugin/events"
 )
 
-type Testa interface {
-	GetConnection() network.Connection
-}
-
 type player struct {
 	entityLiving
 
 	prof     *player_data.Profile
 	online   bool
-	uuid     data.UUID
 	gamemode player_data.GameMode
 	conn     network.Connection
 	ping     int32
+
+	Settings ents.ClientSettings
+
+	exp        int32
+	absorption byte
+	food       float32
 
 	keep_alive_delay int64
 }
@@ -39,7 +40,6 @@ func NewPlayer(prof *player_data.Profile, conn network.Connection) ents.Player {
 	}
 
 	player.name = prof.Name
-	player.uuid = prof.UUID
 
 	return player
 }
@@ -70,10 +70,6 @@ func (p *player) SendMsgPos(pos chat.MessagePosition, messages ...string) {
 	}
 }
 
-func (p *player) GetIsOnline() bool {
-	return p.online
-}
-
 func (p *player) GetConnection() network.Connection {
 	return p.conn
 }
@@ -87,7 +83,7 @@ func (p *player) GetProfile() *player_data.Profile {
 }
 
 func (p *player) UUID() data.UUID {
-	return p.uuid
+	return p.prof.UUID
 }
 
 func (p *player) GetGamemode() player_data.GameMode {
@@ -120,4 +116,42 @@ func (p *player) GetKeepAlive() int64 {
 
 func (p *player) SetKeepAlive(time int64) {
 	p.keep_alive_delay = time
+}
+
+func (p *player) GetAbsorption() byte {
+	return p.absorption
+}
+
+func (p *player) GetIsOnline() bool {
+	return p.online
+}
+
+func (p *player) GetClientSettings() *ents.ClientSettings {
+	return &p.Settings
+}
+
+func (p *player) GetFood() float32 {
+	return p.food
+}
+
+// GetLevel implements ents.Player.
+func (p *player) GetLevel() int32 {
+	panic("unimplemented")
+}
+
+func (p *player) GetXP() int32 {
+	return p.exp
+}
+
+func (p *player) SetLevel(level int32) {
+	p.exp = level*level + 6*level
+}
+
+func (p *player) SetXP(xp int32) {
+	p.exp = xp
+}
+
+func (e *player) PushMetadata(buffer network.Buffer) {
+	buffer.PushByt(HumanSkin)
+	buffer.PushByt(e.Settings.SkinParts)
 }

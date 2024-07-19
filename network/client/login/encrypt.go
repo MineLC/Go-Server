@@ -4,17 +4,14 @@ import (
 	"bytes"
 	"fmt"
 
-	api "github.com/minelc/go-server-api"
 	"github.com/minelc/go-server-api/data"
 	"github.com/minelc/go-server-api/data/chat"
 	"github.com/minelc/go-server-api/data/player"
 	"github.com/minelc/go-server-api/network"
 	"github.com/minelc/go-server-api/network/client/login"
 	srv_login "github.com/minelc/go-server-api/network/server/login"
-	"github.com/minelc/go-server-api/plugin"
-	"github.com/minelc/go-server-api/plugin/events"
 	"github.com/minelc/go-server/ents"
-	"github.com/minelc/go-server/game"
+	"github.com/minelc/go-server/game/join"
 	"github.com/minelc/go-server/network/crypto/auth"
 )
 
@@ -43,7 +40,6 @@ func HandleEncryption(conn network.Connection, packet network.PacketI) {
 	}
 
 	conn.CertifyUpdate(sec) // enable encryption on the connection
-
 	auth.RunAuthGet(sec, conn.CertifyName(), func(auth *auth.Auth, err error) {
 		defer func() {
 			if err := recover(); err != nil {
@@ -74,18 +70,6 @@ func HandleEncryption(conn network.Connection, packet network.PacketI) {
 				Signature: prop.Sign,
 			})
 		}
-
-		p := ents.NewPlayer(&prof, conn)
-
-		conn.SendPacket(&srv_login.PacketOLoginSuccess{
-			PlayerName: p.GetProfile().Name,
-			PlayerUUID: p.UUID().String(),
-		})
-
-		api.GetServer().GetPluginManager().CallEvent(events.PlayerJoinEvent{Player: p}, plugin.Join)
-
-		conn.SetState(network.PLAY)
-		api.GetServer().AddPlayer(conn, p)
-		game.Join(p, conn)
+		join.Join(ents.NewPlayer(&prof, conn), conn)
 	})
 }

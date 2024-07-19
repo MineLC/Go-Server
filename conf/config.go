@@ -1,26 +1,31 @@
 package conf
 
-var DefaultServerConfig = ServerConfig{
-	Network{
-		Host:        "0.0.0.0",
-		Port:        25565,
-		Compression: 256,
-	},
-	Motd{
-		Line:    "&bA Golang server",
-		Favicon: "",
-		Max:     2024,
-		Online:  0,
-	},
-	Settings{
-		DefaultWorld: "world",
-	},
+func CreateDefaultConf() ServerConfig {
+	return ServerConfig{
+		Network{
+			Host:        "0.0.0.0",
+			Port:        25565,
+			Compression: 256,
+		},
+		Motd{
+			Line:    "&bA Golang server",
+			Favicon: "",
+			Max:     2024,
+			Online:  0,
+		},
+		Game{
+			DefaultWorld: "world",
+			OnlineMode:   true,
+			SendPlayers:  true,
+			DebugPackets: true,
+		},
+	}
 }
 
 type ServerConfig struct {
-	Network  Network
-	Motd     Motd
-	Settings Settings
+	Network Network
+	Motd    Motd
+	Game    Game
 }
 
 type Network struct {
@@ -29,8 +34,11 @@ type Network struct {
 	Compression int    `toml:"compression-threshold"`
 }
 
-type Settings struct {
+type Game struct {
 	DefaultWorld string `toml:"default-world"`
+	SendPlayers  bool   `toml:"send-players"`
+	OnlineMode   bool   `toml:"online-mode"`
+	DebugPackets bool   `toml:"debug-packets"`
 }
 
 type Motd struct {

@@ -133,9 +133,6 @@ func (c *connection) SendPacket(packet network.PacketO) {
 
 	packetLength := bufO.Len()
 
-	if packet.UUID() == 0x03 && c.state == network.LOGIN {
-		c.compression = true
-	}
 	temp.PushVrI(packetLength)
 	temp.PushUAS(bufO.UAS(), false)
 	c.tcp.Write(c.Encrypt(temp.UAS()))

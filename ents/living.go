@@ -1,12 +1,17 @@
 package ents
 
-import "github.com/minelc/go-server-api/data"
+import (
+	"github.com/minelc/go-server-api/data"
+	"github.com/minelc/go-server-api/network"
+)
 
 type entityLiving struct {
 	entity
 
-	health float64
-	head   data.HeadPosition
+	nametag *string
+	health  float64
+
+	head data.HeadPosition
 }
 
 func NewEntityLiving() entityLiving {
@@ -22,4 +27,25 @@ func (e *entityLiving) SetHealth(health float64) {
 }
 func (e *entityLiving) GetHeadPos() *data.HeadPosition {
 	return &e.head
+}
+
+func (e *entityLiving) PushMetadata(buffer network.Buffer) {
+	e.entity.PushMetadata(buffer)
+
+	buffer.PushByt(NameTag)
+	if e.nametag == nil {
+		buffer.PushTxt("")
+		buffer.PushByt(ShowNameTag)
+		buffer.PushByt(False)
+	} else {
+		buffer.PushTxt(*e.nametag)
+		buffer.PushByt(ShowNameTag)
+		buffer.PushByt(True)
+	}
+
+	buffer.PushByt(Health)
+	buffer.PushF32(float32(e.health))
+
+	buffer.PushByt(HasIA)
+	buffer.PushByt(False)
 }
