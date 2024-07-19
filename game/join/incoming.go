@@ -22,3 +22,18 @@ func (p *PacketPlayOutEntityMetadata) Push(writer network.Buffer) {
 	p.Entity.PushMetadata(writer)
 	writer.PushByt(127)
 }
+
+type PacketPlayOutExperience struct {
+	Xp    int32
+	Level int32
+}
+
+func (p *PacketPlayOutExperience) UUID() int32 {
+	return 0x1F
+}
+
+func (p *PacketPlayOutExperience) Push(writer network.Buffer) {
+	writer.PushF32(float32(1 / p.Xp))
+	writer.PushVrI(p.Level)
+	writer.PushVrI(p.Xp)
+}

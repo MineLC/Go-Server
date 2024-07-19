@@ -35,7 +35,7 @@ func sendPlayPackets(p ents.Player, conn network.Connection) {
 	conn.SendPacket(&play.PacketPlayOutLogin{
 		EntityID:    int32(p.EntityUUID()),
 		Hardcore:    false,
-		GameMode:    player.CREATIVE,
+		GameMode:    player.SURVIVAL,
 		Dimension:   world.OVERWORLD,
 		Difficulty:  game.EASY,
 		MaxPlayers:  10,
@@ -98,6 +98,7 @@ func debugPackets(p ents.Player, conn network.Connection) {
 	)
 
 	p.SendMsgColorPos(chat.HotBarText, "&b&lGo Server")
+	p.SetXP(16)
 
 	// See a example of sidebar in: https://github.com/ichocomilk/LightSidebar/blob/main/src/main/java/io/github/ichocomilk/lightsidebar/nms/v1_8R3/Sidebar1_8R3.java
 	create := play.PacketPlayOutScoreboardObjective{

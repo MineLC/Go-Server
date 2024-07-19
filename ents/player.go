@@ -10,6 +10,7 @@ import (
 	"github.com/minelc/go-server-api/network/server/play"
 	"github.com/minelc/go-server-api/plugin"
 	"github.com/minelc/go-server-api/plugin/events"
+	"github.com/minelc/go-server/game/join"
 )
 
 type player struct {
@@ -134,9 +135,25 @@ func (p *player) GetFood() float32 {
 	return p.food
 }
 
-// GetLevel implements ents.Player.
 func (p *player) GetLevel() int32 {
-	panic("unimplemented")
+	i := 0
+	var points int
+	points = int(p.exp)
+
+	for {
+		if points < 0 {
+			break
+		}
+		if i < 16 {
+			points -= (2 * i) + 7
+		} else if i < 31 {
+			points -= (5 * i) - 38
+		} else {
+			points -= (9 * i) - 158
+		}
+		i++
+	}
+	return int32(i - 1)
 }
 
 func (p *player) GetXP() int32 {
@@ -144,11 +161,19 @@ func (p *player) GetXP() int32 {
 }
 
 func (p *player) SetLevel(level int32) {
-	p.exp = level*level + 6*level
+	if level <= 16 {
+		p.exp = level*level + 6*level
+	} else if level <= 31 {
+		p.exp = int32(2.5*float32(level*level)) + int32(40.5*float32(level)) + 360
+	} else {
+		p.exp = int32(4.5*float32(level*level)) + int32(162.5*float32(level)) + 2220
+	}
+	p.conn.SendPacket(&join.PacketPlayOutExperience{Xp: p.exp, Level: level})
 }
 
 func (p *player) SetXP(xp int32) {
 	p.exp = xp
+	p.conn.SendPacket(&join.PacketPlayOutExperience{Xp: p.exp, Level: p.GetLevel()})
 }
 
 func (e *player) PushMetadata(buffer network.Buffer) {
