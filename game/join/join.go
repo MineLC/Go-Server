@@ -98,7 +98,7 @@ func debugPackets(p ents.Player, conn network.Connection) {
 	)
 
 	p.SendMsgColorPos(chat.HotBarText, "&b&lGo Server")
-	p.SetXP(16)
+	p.SetXP(25)
 
 	// See a example of sidebar in: https://github.com/ichocomilk/LightSidebar/blob/main/src/main/java/io/github/ichocomilk/lightsidebar/nms/v1_8R3/Sidebar1_8R3.java
 	create := play.PacketPlayOutScoreboardObjective{

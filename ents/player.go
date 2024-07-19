@@ -161,13 +161,7 @@ func (p *player) GetXP() int32 {
 }
 
 func (p *player) SetLevel(level int32) {
-	if level <= 16 {
-		p.exp = level*level + 6*level
-	} else if level <= 31 {
-		p.exp = int32(2.5*float32(level*level)) + int32(40.5*float32(level)) + 360
-	} else {
-		p.exp = int32(4.5*float32(level*level)) + int32(162.5*float32(level)) + 2220
-	}
+	p.exp = join.GetXP(level)
 	p.conn.SendPacket(&join.PacketPlayOutExperience{Xp: p.exp, Level: level})
 }
 
