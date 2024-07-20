@@ -23,7 +23,8 @@ import (
 )
 
 type Server struct {
-	players       map[network.Connection]ents.Player
+	players map[network.Connection]ents.Player
+
 	console       *Console
 	scheduler     *tasks.Scheduler
 	pluginManager api_plugin.PluginManager
@@ -114,7 +115,7 @@ func Start(conf conf.ServerConfig) *Server {
 	pluginManager := plugin.NewPluginManager(cmds.Load())
 
 	server := Server{
-		players:   make(map[network.Connection]ents.Player, 10),
+		players:   make(map[network.Connection]ents.Player, 3),
 		scheduler: tasks.New(),
 		console:   &c,
 		mspt: Mspt{
@@ -135,6 +136,7 @@ func Start(conf conf.ServerConfig) *Server {
 
 	worldManager := impl_world.NewWorldManager(conf.Game.DefaultWorld)
 	server.worlds = worldManager
+
 	return &server
 }
 
@@ -177,4 +179,5 @@ func StartMainLoop(s *Server) {
 
 func executeMain(s *Server) {
 	s.console.executePendient()
+
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/minelc/go-server-api/data"
 	"github.com/minelc/go-server-api/data/motd"
 	"github.com/minelc/go-server/conf"
+	"github.com/minelc/go-server/ents"
 	"github.com/minelc/go-server/game/join"
 	"github.com/minelc/go-server/network"
 	"github.com/minelc/go-server/server"
@@ -37,6 +38,8 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
+	a := ents.NewEntityLiving()
+	join.Cow = &a
 
 	srv.LoadPlugins()
 	server.StartMainLoop(srv)

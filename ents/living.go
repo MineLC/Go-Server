@@ -3,6 +3,7 @@ package ents
 import (
 	"github.com/minelc/go-server-api/data"
 	"github.com/minelc/go-server-api/network"
+	uuid "github.com/satori/go.uuid"
 )
 
 type entityLiving struct {
@@ -15,7 +16,8 @@ type entityLiving struct {
 }
 
 func NewEntityLiving() entityLiving {
-	return entityLiving{entity: NewEntity()}
+	var asa string = "asa"
+	return entityLiving{entity: NewEntity(), nametag: &asa}
 }
 
 func (e *entityLiving) GetHealth() float64 {
@@ -29,23 +31,15 @@ func (e *entityLiving) GetHeadPos() *data.HeadPosition {
 	return &e.head
 }
 
+func (e *entityLiving) UUID() data.UUID {
+	return uuid.Nil
+}
+
 func (e *entityLiving) PushMetadata(buffer network.Buffer) {
 	e.entity.PushMetadata(buffer)
 
-	buffer.PushByt(NameTag)
-	if e.nametag == nil {
-		buffer.PushTxt("")
-		buffer.PushByt(ShowNameTag)
-		buffer.PushByt(False)
-	} else {
+	if e.nametag != nil {
+		addType(buffer, String, NameTag)
 		buffer.PushTxt(*e.nametag)
-		buffer.PushByt(ShowNameTag)
-		buffer.PushByt(True)
 	}
-
-	buffer.PushByt(Health)
-	buffer.PushF32(float32(e.health))
-
-	buffer.PushByt(HasIA)
-	buffer.PushByt(False)
 }

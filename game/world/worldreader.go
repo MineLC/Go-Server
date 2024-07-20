@@ -7,10 +7,12 @@ import (
 
 	"github.com/DataDog/zstd"
 	api "github.com/minelc/go-server-api"
+	"github.com/minelc/go-server-api/data"
 	api_world "github.com/minelc/go-server-api/game/world"
 	api_chunk "github.com/minelc/go-server-api/game/world/chunks"
 	"github.com/minelc/go-server/game/world/chunks"
 	"github.com/minelc/go-server/network"
+	uuid "github.com/satori/go.uuid"
 )
 
 func readWorlds(manager *WorldManager) {
@@ -73,7 +75,11 @@ func readWorld(filePath string, worldName string) api_world.World {
 	chunkDataCompress = nil
 	buf := network.NewBufferWith(chunkBuf)
 	amountChunks := buf.PullI32()
-	world := World{Chunks: make(map[uint64]api_chunk.Chunk, amountChunks)}
+	world := World{
+		Chunks: make(map[uint64]api_chunk.Chunk, amountChunks),
+		Name:   worldName,
+		Uuid:   uuid.UUID(data.CreateUUID(worldName)),
+	}
 
 	var i int32
 	for i = 0; i < amountChunks; i++ {

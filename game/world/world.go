@@ -2,9 +2,12 @@ package world
 
 import (
 	chunks "github.com/minelc/go-server-api/game/world/chunks"
+	uuid "github.com/satori/go.uuid"
 )
 
 type World struct {
+	Name   string
+	Uuid   uuid.UUID
 	Chunks map[uint64]chunks.Chunk
 }
 

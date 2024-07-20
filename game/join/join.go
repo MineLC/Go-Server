@@ -4,6 +4,7 @@ import (
 	api "github.com/minelc/go-server-api"
 	"github.com/minelc/go-server-api/data"
 	"github.com/minelc/go-server-api/data/chat"
+	entities "github.com/minelc/go-server-api/data/entities"
 	"github.com/minelc/go-server-api/data/player"
 	"github.com/minelc/go-server-api/ents"
 	"github.com/minelc/go-server-api/game"
@@ -17,6 +18,7 @@ import (
 )
 
 var GameOptions conf.Game
+var Cow ents.EntityLiving
 
 func Join(p ents.Player, conn network.Connection) {
 	conn.SendPacket(&login.PacketOLoginSuccess{
@@ -68,15 +70,37 @@ func sendPlayPackets(p ents.Player, conn network.Connection) {
 }
 
 func sendTab(p ents.Player, conn network.Connection) {
-	addPlayer := play.PacketPlayOutPlayerInfo{Action: play.ADD_PLAYER, Players: []play.PlayerInfoData{
-		{
-			Profile:  p.GetProfile(),
-			Ping:     p.GetPing(),
-			Name:     chat.New(p.GetProfile().Name),
-			Gamemode: player.CREATIVE,
-		},
-	}}
-	conn.SendPacket(&addPlayer)
+	pInfo := play.PlayerInfoData{
+		Profile:  p.GetProfile(),
+		Ping:     p.GetPing(),
+		Name:     chat.New(p.GetProfile().Name),
+		Gamemode: player.CREATIVE,
+	}
+	addPlayer := play.PacketPlayOutPlayerInfo{Action: play.ADD_PLAYER, Players: []play.PlayerInfoData{pInfo}}
+	players := *api.GetServer().GetPlayers()
+
+	tabInfo := make([]play.PlayerInfoData, len(players)+1)
+	i := 1
+
+	for _, player := range players {
+		player.GetConnection().SendPacket(&addPlayer)
+		p.GetConnection().SendPacket(&PacketPlayOutSpawnPlayer{Player: player})
+
+		tabInfo[i] = play.PlayerInfoData{
+			Profile:  player.GetProfile(),
+			Ping:     player.GetPing(),
+			Name:     chat.New(player.GetProfile().Name),
+			Gamemode: player.GetGamemode(),
+		}
+		i++
+	}
+	tabInfo[0] = pInfo
+	Cow.GetPosition().X = -7.3
+	Cow.GetPosition().Y = 3
+	Cow.GetPosition().Z = 5
+
+	conn.SendPacket(&play.PacketPlayOutPlayerInfo{Action: play.ADD_PLAYER, Players: tabInfo})
+	conn.SendPacket(&PacketPlayOutSpawnEntityLiving{Entity: Cow, Type: entities.COW})
 }
 
 func debugPackets(p ents.Player, conn network.Connection) {

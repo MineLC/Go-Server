@@ -12,5 +12,5 @@
 [Game]
   default-world = "world"
   send-players = true
-  online-mode = true
+  online-mode = false
   debug-packets = true

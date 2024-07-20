@@ -29,7 +29,26 @@ func (e *entity) GetPosition() *data.PositionF {
 	return &e.position
 }
 
+func (e *entity) SetData(data EntityMeta) {
+	mask := &e.Bitmask
+	set(mask, 0x01, data.OnFire)
+	set(mask, 0x02, data.Crouched)
+	set(mask, 0x08, data.Sprinting)
+	set(mask, 0x10, data.Eating)
+	set(mask, 0x20, data.Invisible)
+}
+
 func (e *entity) PushMetadata(buffer network.Buffer) {
-	buffer.PushByt(BitMask)
-	buffer.PushByt(255)
+	addType(buffer, Byte, 0)
+	buffer.PushByt(e.Bitmask)
+}
+
+func addType(buffer network.Buffer, typeData MetadataType, index byte) {
+	buffer.PushByt((byte(typeData)<<5 | index&31) & 255)
+}
+
+func set(mask *byte, field byte, when bool) {
+	if when {
+		*mask |= field
+	}
 }

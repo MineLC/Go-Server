@@ -40,6 +40,7 @@ func NewPlayer(prof *player_data.Profile, conn network.Connection) ents.Player {
 		conn:             conn,
 	}
 
+	player.nametag = nil
 	player.name = prof.Name
 
 	return player
@@ -136,24 +137,7 @@ func (p *player) GetFood() float32 {
 }
 
 func (p *player) GetLevel() int32 {
-	i := 0
-	var points int
-	points = int(p.exp)
-
-	for {
-		if points < 0 {
-			break
-		}
-		if i < 16 {
-			points -= (2 * i) + 7
-		} else if i < 31 {
-			points -= (5 * i) - 38
-		} else {
-			points -= (9 * i) - 158
-		}
-		i++
-	}
-	return int32(i - 1)
+	return join.GetLevel(int(p.exp))
 }
 
 func (p *player) GetXP() int32 {

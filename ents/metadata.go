@@ -1,12 +1,31 @@
 package ents
 
+type EntityMeta struct {
+	OnFire    bool
+	Crouched  bool
+	Sprinting bool
+	Eating    bool
+	Invisible bool
+}
+
+type MetadataType byte
+
 const (
+	Byte   MetadataType = 0
+	Short  MetadataType = 1
+	Int    MetadataType = 2
+	Float  MetadataType = 3
+	String MetadataType = 4
+	Slot   MetadataType = 5
+	Pos    MetadataType = 6
+	Head   MetadataType = 7
+
 	True  byte = 0x01
 	False byte = 0x00
 
 	// Entity
-	BitMask byte = iota // 0x01 byte = On Fire | 0x02 byte = Crouched | 0x08 byte = Sprinting | 0x10 byte = Eating/Drinking/Blocking | 0x20 byte = Invisible
-	Short   byte = 1
+	EntityBitMask byte = 0 // 0x01 byte = On Fire | 0x02 byte = Crouched | 0x08 byte = Sprinting | 0x10 byte = Eating/Drinking/Blocking | 0x20 byte = Invisible
+	EntityShort   byte = 1
 
 	// EntityLiving
 	NameTag         byte = 2

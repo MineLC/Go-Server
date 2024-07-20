@@ -201,7 +201,7 @@ func (b *buffer) PushF64(data float64) {
 	b.PushI64(int64(math.Float64bits(data)))
 }
 func (b *buffer) PushPos(data data.PositionI) {
-	b.PushI64(((data.X & 0x3FFFFFF) << 38) | ((data.Z & 0x3FFFFFF) << 12) | (data.Y & 0xFFF))
+	b.PushI64(((data.X & 0x3FFFFFF) << 38) | ((data.Y & 0xFFF) << 26) | (data.Z & 0x3FFFFFF))
 }
 func (b *buffer) PushVrI(data int32) {
 	for {
